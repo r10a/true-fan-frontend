@@ -12,10 +12,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import theme from './theme';
 
-interface IRootProps {
-
-}
-
 const store = createStore(inboundReducers, applyMiddleware(thunk));
 
 const Root: React.FC<{}> = (props) => {

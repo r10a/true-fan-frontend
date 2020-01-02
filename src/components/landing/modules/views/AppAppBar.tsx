@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { withStyles, Theme } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import AppBar from '../components/AppBar';
 import Toolbar, { styles as toolbarStyles } from '../components/Toolbar';
 
@@ -47,7 +48,8 @@ function AppAppBar(props: { classes: any; }) {
             underline="none"
             color="inherit"
             className={classes.title}
-            href="/premium-themes/onepirate/"
+            component={RouterLink}
+            to="/"
           >
             {'Tru Fan'}
           </Link>
@@ -57,7 +59,8 @@ function AppAppBar(props: { classes: any; }) {
               variant="h6"
               underline="none"
               className={classes.rightLink}
-              href="/premium-themes/onepirate/sign-in/"
+              component={RouterLink}
+              to="/sign-in"
             >
               {'Sign In'}
             </Link>
@@ -65,7 +68,8 @@ function AppAppBar(props: { classes: any; }) {
               variant="h6"
               underline="none"
               className={clsx(classes.rightLink, classes.linkSecondary)}
-              href="/premium-themes/onepirate/sign-up/"
+              component={RouterLink}
+              to="/sign-up"
             >
               {'Sign Up'}
             </Link>
