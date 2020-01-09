@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -13,13 +13,15 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link as RouterLink } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
+import { URL } from '../../Routes';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+        Tru Fan
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -47,9 +49,37 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SignIn() {
+interface ISignInProps {
+  isAuthenticated: boolean;
+  userHasAuthenticated: (isAuthenticated: boolean) => void;
+  history: any;
+}
+
+export default function SignIn(props: ISignInProps) {
   const classes = useStyles();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    if (validateForm()) {
+      try {
+        await Auth.signIn(email, password);
+        props.userHasAuthenticated(true);
+        props.history.push(URL.DASHBOARD);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      console.log("Validation failed");
+    }
+  };
+
+  const validateForm = () => {
+    return email.length > 0 && password.length > 0;
+  };
+  
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -61,11 +91,11 @@ export default function SignIn() {
           Sign in
         </Typography>
         <Grid item>
-            <Link component={RouterLink} to="/sign-up" variant="body2">
+            <Link component={RouterLink} to={URL.SIGNUP} variant="body2">
                 {"Not a member yet?"}
             </Link>
         </Grid>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -75,6 +105,7 @@ export default function SignIn() {
             label="Email Address"
             name="email"
             autoComplete="email"
+            onChange={e => setEmail(e.target.value)}
             autoFocus
           />
           <TextField
@@ -86,6 +117,7 @@ export default function SignIn() {
             label="Password"
             type="password"
             id="password"
+            onChange={e => setPassword(e.target.value)}
             autoComplete="current-password"
           />
           <FormControlLabel
