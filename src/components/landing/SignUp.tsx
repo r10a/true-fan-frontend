@@ -55,23 +55,35 @@ interface ISignUpProps {
 }
 
 export default function SignUp(props: ISignUpProps) {
+  if (props.isAuthenticated) props.history.push(URL.DASHBOARD);
   const classes = useStyles();
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+1");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmationCode, setConfirmationCode] = useState("");
 
   const [confirmation, showConfirmation] = useState(false);
+  const [userExists, setUserExists] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (validateForm()) {
-      await Auth.signUp({
-        username: email,
-        password
-      });
-      showConfirmation(true);
+
+        Auth.signUp({
+          username: email,
+          password,
+          attributes: {
+            given_name: name,
+            phone_number: phone,
+          }
+        }).catch(err => {
+          if (err.code === 'UserNotConfirmedException') {
+            setUserExists(true);
+          }
+        });
+        showConfirmation(true);
+      
     } else {
       console.log("Validation failed");
     }
@@ -81,6 +93,9 @@ export default function SignUp(props: ISignUpProps) {
     e.preventDefault();
     if (validateForm()) {
       try {
+        if (userExists) {
+          await Auth.resendSignUp(email);
+        }
         await Auth.confirmSignUp(email, confirmationCode);
         await Auth.signIn(email, password);
         props.userHasAuthenticated(true);
@@ -114,9 +129,9 @@ export default function SignUp(props: ISignUpProps) {
               <TextField
                 autoFocus
                 margin="dense"
-                id="name"
-                label="Email Address"
-                type="email"
+                id="code"
+                label="Confirmation Code"
+                type="code"
                 onChange={e => setConfirmationCode(e.target.value)}
                 fullWidth
               />
@@ -173,11 +188,12 @@ export default function SignUp(props: ISignUpProps) {
                 variant="outlined"
                 required
                 fullWidth
-                id="phone "
+                id="phone"
                 label="Phone"
                 name="phone"
                 onChange={e => setPhone(e.target.value)}
                 autoComplete="tel"
+                value={phone}
               />
             </Grid>
             <Grid item xs={12}>

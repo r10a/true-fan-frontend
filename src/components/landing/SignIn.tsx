@@ -56,6 +56,7 @@ interface ISignInProps {
 }
 
 export default function SignIn(props: ISignInProps) {
+  if (props.isAuthenticated) props.history.push(URL.DASHBOARD);
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
@@ -120,10 +121,10 @@ export default function SignIn(props: ISignInProps) {
             onChange={e => setPassword(e.target.value)}
             autoComplete="current-password"
           />
-          <FormControlLabel
+          {/* <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
-          />
+          /> */}
           <Button
             type="submit"
             fullWidth
@@ -135,7 +136,10 @@ export default function SignIn(props: ISignInProps) {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link 
+                component={RouterLink}
+                to={URL.FORGOT_PASSWORD}
+                variant="body2">
                 Forgot password?
               </Link>
             </Grid>

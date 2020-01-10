@@ -114,6 +114,8 @@ function AppAppBar(props: IAppAppBarProps) {
                 appProps.userHasAuthenticated(false);
                 history.push(URL.HOME);
               }}
+              component={RouterLink}
+              to={URL.HOME}
             >
               {'Logout'}
             </Link>

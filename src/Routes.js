@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import Index from './components/landing/Index';
 import SignUp from './components/landing/SignUp';
 import SignIn from './components/landing/SignIn';
+import ResetPassword from './components/landing/ResetPassword';
 import Dashboard from './components/dashboard/Dashboard';
 
 const AppliedRoute = ({ component: C, appProps, ...rest }) => {
@@ -17,7 +18,8 @@ export const URL = {
     HOME: "/",
     SIGNUP: "/sign-up",
     SIGNIN: "/sign-in",
-    DASHBOARD: "/dashboard"
+    DASHBOARD: "/dashboard",
+    FORGOT_PASSWORD: "/reset-password"
 };
 
 export default ({ appProps }) => {
@@ -27,6 +29,7 @@ export default ({ appProps }) => {
             <AppliedRoute path={URL.HOME} exact component={Index} appProps={{ isAuthenticated }} />
             <AppliedRoute path={URL.SIGNUP} exact component={SignUp} appProps={{ isAuthenticated, userHasAuthenticated }} />
             <AppliedRoute path={URL.SIGNIN} exact component={SignIn} appProps={{ isAuthenticated, userHasAuthenticated }} />
+            <AppliedRoute path={URL.FORGOT_PASSWORD} exact component={ResetPassword} appProps={{ isAuthenticated, userHasAuthenticated }} />
             <AppliedRoute path={URL.DASHBOARD} exact component={Dashboard} appProps={appProps} />
             <Route component={NotFound} />
         </Switch>
