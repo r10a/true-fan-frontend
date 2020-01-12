@@ -1,11 +1,14 @@
 import React from 'react';
 import { withStyles, Theme } from '@material-ui/core/styles';
-import Button from '../components/Button';
+import { Link as RouterLink } from 'react-router-dom';
 import Typography from '../components/Typography';
 import ProductHeroLayout from './ProductHeroLayout';
+import { URL } from '../../../../Routes';
+import Link from '@material-ui/core/Link';
+import Button from '../components/Button';
 
 const backgroundImage =
-  'https://images.unsplash.com/photo-1534854638093-bada1813ca19?auto=format&fit=crop&w=1400&q=80';
+  'truFAN-logo.png';
 
 const styles = (theme: Theme) => ({
   background: {
@@ -26,6 +29,10 @@ const styles = (theme: Theme) => ({
   more: {
     marginTop: theme.spacing(2),
   },
+  linkPrimary: {
+    fontSize: 16,
+    color: theme.palette.common.white,
+  },
 });
 
 function ProductHero(props: { classes: any; }) {
@@ -36,21 +43,25 @@ function ProductHero(props: { classes: any; }) {
       {/* Increase the network loading priority of the background image. */}
       <img style={{ display: 'none' }} src={backgroundImage} alt="increase priority" />
       <Typography color="inherit" align="center" variant="h2" marked="center">
-        Upgrade your Sundays
+        A Fantasy League for True Sports Fans
       </Typography>
       <Typography color="inherit" align="center" variant="h5" className={classes.h5}>
-        Enjoy secret offers up to -70% off the best luxury hotels every Sunday.
+        Completely Free!
       </Typography>
-      <Button
-        color="secondary"
-        variant="contained"
-        size="large"
-        className={classes.button}
-        // component="a"
-        href="/premium-themes/onepirate/sign-up/"
+      <Link
+        variant="button"
+        underline="none"
+        className={classes.linkPrimary}
+        component={RouterLink}
+        to={URL.SIGNUP}
       >
-        Register
+        <Button
+          variant="contained"
+          color="secondary"
+        >
+          Sign Up
       </Button>
+      </Link>
       <Typography variant="body2" color="inherit" className={classes.more}>
         Discover the experience
       </Typography>

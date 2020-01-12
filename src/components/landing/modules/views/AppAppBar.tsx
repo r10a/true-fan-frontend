@@ -149,15 +149,6 @@ function AppAppBar(props: IAppAppBarProps) {
             >
               {'Sign In'}
             </Link>
-            <Link
-              variant="h6"
-              underline="none"
-              className={clsx(classes.rightLink, classes.linkSecondary, appProps.isAuthenticated && classes.hidden)}
-              component={RouterLink}
-              to={URL.SIGNUP}
-            >
-              {'Sign Up'}
-            </Link>
             <div>
               <IconButton
                 ref={anchorRef}
