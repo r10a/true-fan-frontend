@@ -14,6 +14,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 import { URL } from '../../Routes';
+import { isEmpty, reduce, cloneDeep, set } from 'lodash-es';
+import { check, isValidPhone, isValidEmail } from './modules/form/validation';
 
 function Copyright() {
   return (
@@ -58,32 +60,58 @@ export default function SignUp(props: ISignUpProps) {
   if (props.isAuthenticated) props.history.push(URL.DASHBOARD);
   const classes = useStyles();
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("+1");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmationCode, setConfirmationCode] = useState("");
+  const [helperTexts, setHelperText] = useState({
+    email: "",
+    password: "",
+    name: "",
+    phone: "",
+    other: "",
+  });
 
   const [confirmation, showConfirmation] = useState(false);
   const [userExists, setUserExists] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (validateForm()) {
 
-        Auth.signUp({
-          username: email,
-          password,
-          attributes: {
-            given_name: name,
-            phone_number: phone,
-          }
-        }).catch(err => {
-          if (err.code === 'UserNotConfirmedException') {
-            setUserExists(true);
-          }
-        });
+      Auth.signUp({
+        username: email,
+        password,
+        attributes: {
+          given_name: name,
+          ...(phone.length <= 2 && { phone_number: phone })
+        }
+      }).then(user => {
+        setHelperText({ email: "", password: "", name: "", phone: "", other: "", });
         showConfirmation(true);
-      
+      }).catch(err => {
+        if (err.code === 'UserNotConfirmedException') {
+          setUserExists(true);
+          showConfirmation(true);
+        } else if (err.code === 'InvalidPasswordException') {
+          setHelperText({
+            ...helperTexts,
+            password: "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters"
+          });
+        } else if (err.code === 'InvalidParameterException') {
+          if (err.message.search('password')) {
+            setHelperText({
+              ...helperTexts,
+              password: "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters"
+            });
+          }
+        }
+        setHelperText({
+          ...helperTexts,
+          other: err.message
+        });
+        console.log(err);
+      })
     } else {
       console.log("Validation failed");
     }
@@ -91,7 +119,7 @@ export default function SignUp(props: ISignUpProps) {
 
   const handleConfirmationSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!isEmpty(confirmationCode)) {
       try {
         if (userExists) {
           await Auth.resendSignUp(email);
@@ -102,6 +130,11 @@ export default function SignUp(props: ISignUpProps) {
         console.log("created user successfully");
         props.history.push(URL.DASHBOARD);
       } catch (e) {
+        setHelperText({
+          ...helperTexts,
+          other: e.message
+        });
+        showConfirmation(false);
         console.log(e);
       }
     } else {
@@ -109,11 +142,22 @@ export default function SignUp(props: ISignUpProps) {
     }
   };
 
+
   const validateForm = () => {
-    return email.length > 0 &&
-      name.length > 0 &&
-      phone.length > 0 &&
-      password.length > 0;
+    const errors = cloneDeep(helperTexts);
+
+    check(isEmpty(name), "name", "Required", errors);
+    check(phone.length > 2 && isValidPhone(phone), "phone", "format: +1XXXXXXXXXX", errors);
+    check(!isValidEmail(email), "email", "Required", errors);
+    check(password.length < 8, "password", 
+      "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters", errors);
+    set(errors, "other", "");
+    console.log(errors, !isValidEmail(email));
+
+    setHelperText(errors);
+    return reduce(errors, (acc, value) => {
+      return acc && isEmpty(value);
+    }, true);
   }
 
   const confirmationForm = () => {
@@ -173,6 +217,8 @@ export default function SignUp(props: ISignUpProps) {
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="given-name"
+                error={!isEmpty(helperTexts.name)}
+                helperText={helperTexts.name}
                 name="fname"
                 variant="outlined"
                 required
@@ -186,7 +232,9 @@ export default function SignUp(props: ISignUpProps) {
             <Grid item xs={12} sm={6}>
               <TextField
                 variant="outlined"
-                required
+                error={!isEmpty(helperTexts.phone)}
+                helperText={helperTexts.phone}
+                // required
                 fullWidth
                 id="phone"
                 label="Phone"
@@ -199,6 +247,8 @@ export default function SignUp(props: ISignUpProps) {
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
+                error={!isEmpty(helperTexts.email)}
+                helperText={helperTexts.email}
                 required
                 fullWidth
                 id="email"
@@ -211,6 +261,8 @@ export default function SignUp(props: ISignUpProps) {
             <Grid item xs={12}>
               <TextField
                 variant="outlined"
+                error={!isEmpty(helperTexts.password)}
+                helperText={helperTexts.password}
                 required
                 fullWidth
                 name="password"
@@ -231,6 +283,7 @@ export default function SignUp(props: ISignUpProps) {
           >
             Sign Up
           </Button>
+          <div className="MuiFormLabel-root Mui-error">{helperTexts.other}</div>
         </form>
       </div>
       <Box mt={5}>

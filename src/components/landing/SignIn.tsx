@@ -61,6 +61,7 @@ export default function SignIn(props: ISignInProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -70,6 +71,7 @@ export default function SignIn(props: ISignInProps) {
         props.userHasAuthenticated(true);
         props.history.push(URL.DASHBOARD);
       } catch (e) {
+        setError(e.message);
         console.log(e);
       }
     } else {
@@ -145,6 +147,7 @@ export default function SignIn(props: ISignInProps) {
             </Grid>
           </Grid>
         </form>
+        <div className="MuiFormLabel-root Mui-error">{error}</div>
       </div>
       <Box mt={8}>
         <Copyright />

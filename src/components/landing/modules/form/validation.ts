@@ -1,19 +1,19 @@
 import isEmail from 'validator/lib/isEmail';
+import isMobilePhone from 'validator/lib/isMobilePhone';
+import { set, isEmpty } from 'lodash-es';
 
-export function email(value: string) {
-  return value && !isEmail(value.trim()) ? 'Invalid email' : null;
+export function isValidEmail(value: string): boolean {
+  return !isEmpty(value) && isEmail(value.trim());
 }
 
-function isDirty(value: number) {
-  return value || value === 0;
+export function isValidPhone(value: string): boolean {
+  return !isEmpty(value) && !isMobilePhone(value.trim());
 }
 
-export function required(requiredFields: string[], values: any): any {
-  return requiredFields.reduce(
-    (fields, field) => ({
-      ...fields,
-      ...(isDirty(values[field]) ? undefined : { [field]: 'Required' }),
-    }),
-    {},
-  );
-}
+export const check = (valid: boolean, field: string, errorText: string, errors: {[key: string]: string}) => {
+  if (valid) {
+    set(errors, field, errorText);
+  } else {
+    set(errors, field, "");
+  }
+};
