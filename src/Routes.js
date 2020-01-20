@@ -5,6 +5,7 @@ import SignUp from './components/landing/SignUp';
 import SignIn from './components/landing/SignIn';
 import ResetPassword from './components/landing/ResetPassword';
 import Dashboard from './components/dashboard/Dashboard';
+import IPL from './components/dashboard/modules/views/IPL';
 
 const AppliedRoute = ({ component: C, appProps, ...rest }) => {
     return <Route {...rest} render={props => <C {...props} {...appProps} />} />;
@@ -18,19 +19,22 @@ export const URL = {
     HOME: "/",
     SIGNUP: "/sign-up",
     SIGNIN: "/sign-in",
-    DASHBOARD: "/dashboard",
+    DASHBOARD: {
+        HOME: "/dashboard",
+        IPL: "/dashboard/IPL"
+    },
     FORGOT_PASSWORD: "/reset-password"
 };
 
-export default ({ appProps }) => {
-    const { isAuthenticated, userHasAuthenticated } = appProps;
+export default (props) => {
     return (
         <Switch>
-            <AppliedRoute path={URL.HOME} exact component={Index} appProps={{ isAuthenticated }} />
-            <AppliedRoute path={URL.SIGNUP} exact component={SignUp} appProps={{ isAuthenticated, userHasAuthenticated }} />
-            <AppliedRoute path={URL.SIGNIN} exact component={SignIn} appProps={{ isAuthenticated, userHasAuthenticated }} />
-            <AppliedRoute path={URL.FORGOT_PASSWORD} exact component={ResetPassword} appProps={{ isAuthenticated, userHasAuthenticated }} />
-            <AppliedRoute path={URL.DASHBOARD} exact component={Dashboard} appProps={appProps} />
+            <AppliedRoute path={URL.HOME} exact component={Index} appProps={props} />
+            <AppliedRoute path={URL.SIGNUP} exact component={SignUp} appProps={props} />
+            <AppliedRoute path={URL.SIGNIN} exact component={SignIn} appProps={props} />
+            <AppliedRoute path={URL.FORGOT_PASSWORD} exact component={ResetPassword} appProps={props} />
+            <AppliedRoute path={URL.DASHBOARD.HOME} exact component={Dashboard} appProps={props} />
+            <AppliedRoute path={URL.DASHBOARD.IPL} exact component={IPL} appProps={props} />
             <Route component={NotFound} />
         </Switch>
     );

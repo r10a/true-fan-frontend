@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -61,7 +58,7 @@ interface ISignInProps {
 }
 
 export default function ResetPassword(props: ISignInProps) {
-    if (props.isAuthenticated) props.history.push(URL.DASHBOARD);
+    if (props.isAuthenticated) props.history.push(URL.DASHBOARD.HOME);
     const classes = useStyles();
 
     const [email, setEmail] = useState("");
@@ -91,7 +88,7 @@ export default function ResetPassword(props: ISignInProps) {
                 await Auth.forgotPasswordSubmit(email, confirmationCode, password)
                 props.userHasAuthenticated(true);
                 console.log("password reset");
-                props.history.push(URL.DASHBOARD);
+                props.history.push(URL.DASHBOARD.HOME);
             } catch (e) {
                 console.log(e);
             }
@@ -156,7 +153,6 @@ export default function ResetPassword(props: ISignInProps) {
 
     return (
         <Container component="main" maxWidth="xs">
-            <CssBaseline />
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
