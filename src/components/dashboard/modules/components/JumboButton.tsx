@@ -37,7 +37,7 @@ export default function JumboButton(props: IJumboButtonProps) {
 
   return (
     <Grid item xs={12} md={6}>
-      <CardActionArea component="a" href="#">
+      <CardActionArea component="a">
         <Card className={classes.card} onClick={props.onClick}>
           <div className={classes.cardDetails}>
             <CardContent>

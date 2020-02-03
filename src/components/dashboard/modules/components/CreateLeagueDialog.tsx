@@ -56,14 +56,14 @@ export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
             To Create a new private {props.type} league, please enter the following information.
           </DialogContentText>
           {map(props.fields, ({ id, label }, index) => (
-            id === "type" ?
+            id === "leagueType" ?
               <RadioGroup
                 key={id}
                 aria-label={id}
                 name={id}
                 className={classes.radioGroup}
                 // @ts-ignore
-                value={props.formFields.type}
+                value={props.formFields.leagueType}
                 // @ts-ignore
                 onChange={e => props.setFormField({ ...props.formFields, [id]: GAME_TYPE[e.target.value] })}
               >
