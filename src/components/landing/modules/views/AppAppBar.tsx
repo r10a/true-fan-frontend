@@ -1,18 +1,29 @@
-import React, { Dispatch, SetStateAction, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
-import { withStyles, Theme } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
 import AppBar from '../components/AppBar';
 import Toolbar, { styles as toolbarStyles } from '../components/Toolbar';
-import { IconButton, Menu, MenuItem, Popper, Grow, Paper, ClickAwayListener, MenuList } from '@material-ui/core';
-import Button from '../components/Button';
+import {
+  IconButton, MenuItem, Popper, Grow, Paper, ClickAwayListener,
+  MenuList, Drawer, Divider, List, ListItem,
+  ListItemIcon, ListItemText, Collapse, makeStyles
+} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import SettingsIcon from '@material-ui/icons/Settings';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import SportsCricketIcon from '@material-ui/icons/SportsCricket';
+import SportsSoccerIcon from '@material-ui/icons/SportsSoccer';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import EmojiEventsIcon from '@material-ui/icons/EmojiEvents';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Auth } from 'aws-amplify';
 import { URL } from '../../../../Routes';
 
-const styles = (theme: Theme) => ({
+const drawerWidth = 240;
+
+const useStyles = makeStyles(theme => ({
   title: {
     fontSize: 24,
   },
@@ -60,22 +71,50 @@ const styles = (theme: Theme) => ({
   paper: {
     marginRight: theme.spacing(2),
   },
-});
+  drawerPaper: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerPaperClose: {
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    width: theme.spacing(7),
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9),
+    },
+  },
+  toolbarIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '0 8px',
+    ...theme.mixins.toolbar,
+  },
+  nested: {
+    paddingLeft: theme.spacing(5),
+  },
+}));
 
 interface IAppAppBarProps {
-  classes: any;
-  appProps: {
-    isAuthenticated: boolean;
-    userHasAuthenticated: Dispatch<SetStateAction<boolean>>;
-    isSidebarOpen: boolean;
-    toggleSidebar: () => void;
-  };
+  isAuthenticated: boolean;
+  userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
 };
 
-function AppAppBar(props: IAppAppBarProps) {
-  const { classes, appProps } = props;
+export default function AppAppBar(props: IAppAppBarProps) {
+  const classes = useStyles();
   const history = useHistory();
   const [isSettingOpen, openSettings] = React.useState(false);
+  const [isTournamentsOpen, openTournaments] = useState(false);
   const anchorRef = React.useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {
@@ -109,7 +148,7 @@ function AppAppBar(props: IAppAppBarProps) {
   const handleLogout = async (event: React.MouseEvent<EventTarget>) => {
     handleClose(event);
     await Auth.signOut();
-    appProps.userHasAuthenticated(false);
+    props.userHasAuthenticated(false);
     history.push(URL.HOME);
   };
 
@@ -122,8 +161,8 @@ function AppAppBar(props: IAppAppBarProps) {
               edge="start"
               color="inherit"
               aria-label="open drawer"
-              onClick={e => appProps.toggleSidebar()}
-              className={clsx(appProps.isAuthenticated && !appProps.isSidebarOpen ? classes.show : classes.hidden)}
+              onClick={e => props.toggleSidebar()}
+              className={clsx(props.isAuthenticated && !props.isSidebarOpen ? classes.show : classes.hidden)}
             >
               <MenuIcon />
             </IconButton>
@@ -134,7 +173,7 @@ function AppAppBar(props: IAppAppBarProps) {
             color="inherit"
             className={classes.title}
             component={RouterLink}
-            to={appProps.isAuthenticated ? URL.DASHBOARD : URL.HOME}
+            to={props.isAuthenticated ? URL.DASHBOARD.HOME : URL.HOME}
           >
             {'Tru Fan'}
           </Link>
@@ -143,7 +182,7 @@ function AppAppBar(props: IAppAppBarProps) {
               color="inherit"
               variant="h6"
               underline="none"
-              className={clsx(classes.rightLink, appProps.isAuthenticated && classes.hidden)}
+              className={clsx(classes.rightLink, props.isAuthenticated && classes.hidden)}
               component={RouterLink}
               to={URL.SIGNIN}
             >
@@ -155,9 +194,9 @@ function AppAppBar(props: IAppAppBarProps) {
                 aria-controls={isSettingOpen ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
-                className={clsx(classes.rightLink, !appProps.isAuthenticated && classes.hidden)}
+                className={clsx(classes.rightLink, !props.isAuthenticated && classes.hidden)}
               >
-                <SettingsIcon/>
+                <SettingsIcon />
               </IconButton>
               <Popper open={isSettingOpen} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
                 {({ TransitionProps, placement }) => (
@@ -181,9 +220,60 @@ function AppAppBar(props: IAppAppBarProps) {
           </div>
         </Toolbar>
       </AppBar>
+      <Drawer
+        classes={{
+          paper: clsx(classes.drawerPaper, !props.isSidebarOpen && classes.drawerPaperClose),
+        }}
+        open={props.isSidebarOpen}
+      >
+        <div className={classes.toolbarIcon}>
+          <IconButton onClick={props.toggleSidebar}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
+        <List
+          component="nav"
+          aria-labelledby="dashboard-sidebar"
+        >
+          <ListItem button onClick={() => {
+            history.push(URL.DASHBOARD.HOME);
+            props.toggleSidebar();
+          }}>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button onClick={() => openTournaments(!isTournamentsOpen)}>
+            <ListItemIcon>
+              <EmojiEventsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Tournaments" />
+            {isTournamentsOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={isTournamentsOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested} onClick={() => {
+                history.push(URL.DASHBOARD.IPL);
+                props.toggleSidebar();
+              }}>
+                <ListItemIcon>
+                  <SportsCricketIcon />
+                </ListItemIcon>
+                <ListItemText primary="IPL" />
+              </ListItem>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <SportsSoccerIcon />
+                </ListItemIcon>
+                <ListItemText primary="EURO" />
+              </ListItem>
+            </List>
+          </Collapse>
+        </List>
+      </Drawer>
       <div className={classes.placeholder} />
     </div>
   );
 }
-
-export default withStyles(styles)(AppAppBar);

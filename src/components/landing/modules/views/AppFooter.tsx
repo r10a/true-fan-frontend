@@ -60,17 +60,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const LANGUAGES = [
-  {
-    code: 'en-US',
-    name: 'English',
-  },
-  {
-    code: 'fr-FR',
-    name: 'Français',
-  },
-];
-
 export default function AppFooter() {
   const classes = useStyles();
 

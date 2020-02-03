@@ -31,12 +31,14 @@ const App: React.FC = () => {
 
   const toggleSidebar = () => openSidebar(!isSidebarOpen);
 
+  const props = {isAuthenticated, userHasAuthenticated, isSidebarOpen, toggleSidebar};
+
   return (
     <div className="App">
       {!isAuthenticating &&
         <div>
-          <AppAppBar appProps={{ isAuthenticated, userHasAuthenticated, isSidebarOpen, toggleSidebar }} />
-          <Routes appProps={{ isAuthenticated, userHasAuthenticated, isSidebarOpen, toggleSidebar }} />
+          <AppAppBar { ...props } />
+          <Routes { ...props } />
         </div>
       }
     </div>

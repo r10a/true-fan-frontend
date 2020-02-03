@@ -14,7 +14,7 @@ interface IIndexProps {
 }
 
 function Index(props: IIndexProps) {
-  if (props.isAuthenticated) props.history.push(URL.DASHBOARD);
+  if (props.isAuthenticated) props.history.push(URL.DASHBOARD.HOME);
 
   return (
     <React.Fragment>

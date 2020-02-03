@@ -1,13 +1,13 @@
 const dev = {
     apiGateway: {
-      REGION: "YOUR_DEV_API_GATEWAY_REGION",
-      URL: "YOUR_DEV_API_GATEWAY_URL"
+      REGION: "us-east-1",
+      URL: "https://5d9hznida7.execute-api.us-east-1.amazonaws.com/dev"
     },
     cognito: {
       REGION: "us-east-1",
-      USER_POOL_ID: "us-east-1_2unBAV22X",
-      APP_CLIENT_ID: "1np22emr6fd89d3lbd492m1f9n",
-      IDENTITY_POOL_ID: "us-east-1:cff7f221-b430-4e60-9658-9961ea88ed00"
+      USER_POOL_ID: "us-east-1_UYEQM6GD9",
+      APP_CLIENT_ID: "558qn5fhhfccm3qonfapdok4am",
+      IDENTITY_POOL_ID: "us-east-1:e3d812a8-c3f3-47d1-9088-41830492c054"
     }
   };
   
