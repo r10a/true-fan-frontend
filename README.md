@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-Add a config.js in `src/` with content like below - 
+Add a `config.js` in `src/` with content like below - 
 ```
 const dev = {
     apiGateway: {
