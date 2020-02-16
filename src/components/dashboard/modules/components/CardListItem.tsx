@@ -26,7 +26,8 @@ interface ICardListItemProps {
         description: string;
         owner: string;
     };
-    onClick?: () => void;
+    onClick: () => void;
+    onOptionsClick?: () => void;
 }
 
 export default function CardListItem(props: ICardListItemProps) {
@@ -40,7 +41,7 @@ export default function CardListItem(props: ICardListItemProps) {
                     <div className={classes.cardDetails}>
                         <CardContent>
                             <Grid container spacing={4} justify="center" alignItems="center">
-                                <Grid item xs={8} md={10}>
+                                <Grid item xs={8} md={10} onClick={props.onClick}>
                                     <Typography component="h2" variant="h5">
                                         {post.title}
                                     </Typography>
@@ -52,9 +53,9 @@ export default function CardListItem(props: ICardListItemProps) {
                                     </Typography>
                                 </Grid>
                                 {
-                                    !!props.onClick ?
+                                    !!props.onOptionsClick ?
                                         <Grid item xs={4} md={2}>
-                                            <IconButton aria-label="settings" onClick={props.onClick}>
+                                            <IconButton aria-label="settings" onClick={props.onOptionsClick}>
                                                 <SettingsIcon />
                                             </IconButton>
                                         </Grid> : ""

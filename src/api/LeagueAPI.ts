@@ -31,6 +31,22 @@ export interface ILeagueMemberPayload {
     userId: string;
 }
 
+export interface ISurvivorPrediction {
+    team: string;
+    mom: string;
+}
+
+interface ISurvivorPredictionPayload {
+    predictions: ISurvivorPrediction[];
+    tournament: string;
+    leagueName: string;
+    userId?: string;
+}
+
+export interface ISurvivorPredictionResult extends IAPIResult {
+    Item: ISurvivorPredictionPayload;
+}
+
 const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues> => {
     console.log("payload", payload);
     const user = await Auth.currentAuthenticatedUser();
@@ -56,17 +72,38 @@ const getLeagueMembers = async (leagueName: string): Promise<IUserLeagueMembers>
     });
 }
 
-const setLeagueMembers = async (leagueName: string, payload: string[]): Promise<IUserLeagueMembers> => {
+const setLeagueMembers = async (leagueName: string, members: string[]): Promise<IUserLeagueMembers> => {
     return API.post("tru-fan", `/set-league-members/${leagueName}`, {
-        body: {
-            members: payload
-        }
+        body: { members }
     });
 }
+
+const getIPLSchedule = async () => {
+    return API.get("tru-fan", "/get-ipl-schedule", {
+        headers: {}
+    });
+};
+
+const getSurvivorPrediction = async (tournament: string, leagueName: string) => {
+    const user = await Auth.currentAuthenticatedUser();
+    return API.get("tru-fan", `/get-survivor-prediction/${tournament}/${leagueName}/${user.attributes.email}`, {
+        headers: {}
+    });
+};
+
+const setSurvivorPrediction = async (payload: ISurvivorPredictionPayload): Promise<ISurvivorPredictionResult> => {
+    const user = await Auth.currentAuthenticatedUser();
+    return API.post("tru-fan", `/set-survivor-prediction/${payload.tournament}/${payload.leagueName}/${user.attributes.email}`, {
+        body: { predictions: payload.predictions }
+    });
+};
 
 export default {
     create: createLeague,
     getUserLeagues,
     getLeagueMembers,
     setLeagueMembers,
+    getIPLSchedule,
+    getSurvivorPrediction,
+    setSurvivorPrediction
 };

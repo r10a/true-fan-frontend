@@ -252,7 +252,7 @@ export default function SignUp(props: ISignUpProps) {
                 id="email"
                 label="Email Address"
                 name="email"
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value.toLowerCase())}
                 autoComplete="email"
               />
             </Grid>

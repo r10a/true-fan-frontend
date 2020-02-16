@@ -152,6 +152,13 @@ export default function IPL(props: IDashboardProps) {
         }
     }
 
+    const navigateToLeague = (leagueName: string) => {
+        const url = URL.DASHBOARD.SURVIVOR
+            .replace(":game", "IPL")
+            .replace(":league", leagueName);
+        props.history.push(url)
+    };
+
     return (
         <React.Fragment>
             <Container maxWidth="lg" className={classes.mainGrid} >
@@ -176,7 +183,8 @@ export default function IPL(props: IDashboardProps) {
                                                             description: league.description,
                                                             owner: league.userId
                                                         }}
-                                                        onClick={() => {
+                                                        onClick={() => navigateToLeague(league.leagueName)}
+                                                        onOptionsClick={() => {
                                                             setSelectedLeague(league);
                                                             dispatch({ type: LEAGUE_ACTIONS.GET_LEAGUE_MEMBERS, leagueName: league.leagueName });
                                                             openManage(true);
@@ -202,6 +210,7 @@ export default function IPL(props: IDashboardProps) {
                                                             description: league.description,
                                                             owner: league.userId
                                                         }}
+                                                        onClick={() => navigateToLeague(league.leagueName)}
                                                     />
                                                 </Grid>
                                             )) : <Grid item xs={12}>You are not a part of any Leagues</Grid>
