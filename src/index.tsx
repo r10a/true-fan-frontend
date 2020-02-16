@@ -12,7 +12,6 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import theme from './theme';
-import config from './config';
 
 const store = createStore(inboundReducers, applyMiddleware(thunk));
 
@@ -29,20 +28,39 @@ const Root: React.FC<{}> = (props) => {
     );
 };
 
+// Amplify.configure({
+//     Auth: {
+//         mandatorySignIn: true,
+//         region: config.cognito.REGION,
+//         userPoolId: config.cognito.USER_POOL_ID,
+//         identityPoolId: config.cognito.IDENTITY_POOL_ID,
+//         userPoolWebClientId: config.cognito.APP_CLIENT_ID
+//     },
+//     API: {
+//         endpoints: [
+//             {
+//                 name: "tru-fan",
+//                 endpoint: config.apiGateway.URL,
+//                 region: config.apiGateway.REGION
+//             },
+//         ]
+//     }
+// });
+
 Amplify.configure({
     Auth: {
         mandatorySignIn: true,
-        region: config.cognito.REGION,
-        userPoolId: config.cognito.USER_POOL_ID,
-        identityPoolId: config.cognito.IDENTITY_POOL_ID,
-        userPoolWebClientId: config.cognito.APP_CLIENT_ID
+        region: process.env.REACT_APP_REGION,
+        userPoolId: process.env.REACT_APP_COGNITO_USERPOOL,
+        identityPoolId: process.env.REACT_APP_COGNITO_IDENTITYPOOL,
+        userPoolWebClientId: process.env.REACT_APP_COGNITO_APPCLIENT
     },
     API: {
         endpoints: [
             {
                 name: "tru-fan",
-                endpoint: config.apiGateway.URL,
-                region: config.apiGateway.REGION
+                endpoint: process.env.REACT_APP_APIGATEWAY,
+                region: process.env.REACT_APP_REGION
             },
         ]
     }
