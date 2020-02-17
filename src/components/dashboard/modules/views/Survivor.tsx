@@ -118,7 +118,7 @@ export default function IPL(props: ISurvivorProps) {
                         <Grid item xs={12}>
                             <Paper elevation={3} className={classes.leaguesSection}>
                                 <Title title="Predictions" />
-                                <Grid container spacing={2}>
+                                <Grid container spacing={4}>
                                     {
                                         !isEmpty(userSchedule) ?
                                             map(userSchedule, (match, index) => (

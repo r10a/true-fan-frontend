@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -17,6 +18,10 @@ const useStyles = makeStyles({
     cardMedia: {
         width: 160,
     },
+    cardSelected: {
+        background: '#2196f3',
+        color: 'white'
+    }
 });
 
 interface ITeamSwitcherProps {
@@ -40,18 +45,22 @@ export default function TeamSwitcher(props: ITeamSwitcherProps) {
     const { leftTeam, rightTeam } = props;
 
     const switchTeam = (team: string) => {
-        if (team === props.prediction.team) {
+        if (isTeamSelected(team)) {
             props.teamSwitchHandler(props.index, { team: "", mom: props.prediction.mom});
-        } else if (team !== props.prediction.team) {
+        } else {
             props.teamSwitchHandler(props.index, { team, mom: props.prediction.mom});
         }
     }
 
+    const isTeamSelected = (team: string) => {
+        return team === props.prediction.team;
+    }
+
     return (
-        <Grid container spacing={4} justify="center" alignItems="center">
+        <Grid container spacing={2} justify="center" alignItems="center">
             <Grid item xs={6}>
                 <CardActionArea component="a">
-                    <Card className={classes.card} onClick={() => switchTeam(leftTeam.name)} raised={leftTeam.name === props.prediction.team}>
+                    <Card className={clsx(classes.card, isTeamSelected(leftTeam.name) && classes.cardSelected)} onClick={() => switchTeam(leftTeam.name)} raised={isTeamSelected(leftTeam.name)}>
                         <div className={classes.cardDetails}>
                             <CardContent>
                                 <Typography component="h2" variant="h5">
@@ -70,7 +79,7 @@ export default function TeamSwitcher(props: ITeamSwitcherProps) {
             </Grid>
             <Grid item xs={6}>
                 <CardActionArea component="a">
-                    <Card className={classes.card} onClick={() => switchTeam(rightTeam.name)} raised={rightTeam.name === props.prediction.team}>
+                    <Card className={clsx(classes.card, isTeamSelected(rightTeam.name) && classes.cardSelected)} onClick={() => switchTeam(rightTeam.name)} raised={isTeamSelected(rightTeam.name)}>
                         <div className={classes.cardDetails}>
                             <CardContent>
                                 <Typography component="h2" variant="h5">
