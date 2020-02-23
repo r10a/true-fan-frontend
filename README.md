@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/8b9d30ee-d5d9-4058-b1c5-6a0bae193e77/deploy-status)](https://app.netlify.com/sites/tru-fan/deploys)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 Add a `config.js` in `src/` with content like below - 
