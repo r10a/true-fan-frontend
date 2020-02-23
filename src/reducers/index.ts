@@ -1,7 +1,7 @@
-import { ReducersMapObject, combineReducers} from 'redux';
+import { combineReducers} from 'redux';
 import LeagueReducer from './LeagueReducer';
 
-const inboudReducers: ReducersMapObject = {
+const inboudReducers = {
     LeagueReducer
 };
 

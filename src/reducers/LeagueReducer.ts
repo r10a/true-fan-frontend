@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash-es';
-import LeagueAPI, { IUserLeagues, IUserLeagueMembers } from '../api/LeagueAPI';
+import LeagueAPI, { IUserLeagues, IUserLeagueMembers, IGameScheduleResult } from '../api/LeagueAPI';
 
 export const LEAGUE_ACTIONS = {
     CREATE_LEAGUE: "CREATE_LEAGUE",
@@ -14,19 +14,17 @@ export const LEAGUE_ACTIONS = {
 export interface ILeagueState {
     user_leagues: IUserLeagues;
     members: IUserLeagueMembers;
-    iplSchedule: Array<string[]>;
+    schedule: IGameScheduleResult;
     [key: string]: any;
 }
 
-const initialState :ILeagueState = {
+const initialState: ILeagueState = {
     user_leagues: {} as IUserLeagues,
     members: {} as IUserLeagueMembers,
-    iplSchedule: [] as Array<string[]>,
+    schedule: {} as IGameScheduleResult,
 };
 
-export type LeagueStore = typeof initialState;
-
-export default (state = initialState, action: any) => {
+export default (state: ILeagueState = initialState, action: any) => {
     switch (action.type) {
         case LEAGUE_ACTIONS.GET_USER_LEAGUES: {
             return {
@@ -43,7 +41,7 @@ export default (state = initialState, action: any) => {
         case LEAGUE_ACTIONS.GET_IPL_SCHEDULE: {
             return {
                 ...state,
-                iplSchedule: LeagueAPI.getIPLSchedule()
+                schedule: LeagueAPI.getSchedule(action.tournament)
             }
         }
         case LEAGUE_ACTIONS.GET_SURVIVOR_PREDICTION: {
@@ -58,9 +56,7 @@ export default (state = initialState, action: any) => {
                 survivorPrediction: LeagueAPI.setSurvivorPrediction(action.payload)
             }
         }
-        case LEAGUE_ACTIONS.RESET: {
-            return cloneDeep(initialState);
-        }
-        default: return { ...state };
+        case LEAGUE_ACTIONS.RESET:
+        default: return cloneDeep(initialState);
     }
 };

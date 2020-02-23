@@ -26,6 +26,12 @@ export interface IUserLeagueMembers extends IAPIResult {
     Items: ILeagueMemberPayload[];
 }
 
+export type IGameSchedule = Array<string[]>;
+
+export interface IGameScheduleResult extends IAPIResult {
+    Item: IGameSchedule;
+}
+
 export interface ILeagueMemberPayload {
     leagueName: string;
     userId: string;
@@ -34,6 +40,7 @@ export interface ILeagueMemberPayload {
 export interface ISurvivorPrediction {
     team: string;
     mom: string;
+    confidence: number;
 }
 
 interface ISurvivorPredictionPayload {
@@ -78,8 +85,8 @@ const setLeagueMembers = async (leagueName: string, members: string[]): Promise<
     });
 }
 
-const getIPLSchedule = async () => {
-    return API.get("tru-fan", "/get-ipl-schedule", {
+const getSchedule = async (tournament: string): Promise<IGameSchedule> => {
+    return API.get("tru-fan", `/get-schedule/${tournament}`, {
         headers: {}
     });
 };
@@ -88,6 +95,10 @@ const getSurvivorPrediction = async (tournament: string, leagueName: string) => 
     const user = await Auth.currentAuthenticatedUser();
     return API.get("tru-fan", `/get-survivor-prediction/${tournament}/${leagueName}/${user.attributes.email}`, {
         headers: {}
+    }).catch(error => {
+        if (error.response.data.error.message === "No such Item exists") {
+            return Promise.resolve({});
+        }
     });
 };
 
@@ -103,7 +114,7 @@ export default {
     getUserLeagues,
     getLeagueMembers,
     setLeagueMembers,
-    getIPLSchedule,
+    getSchedule,
     getSurvivorPrediction,
     setSurvivorPrediction
 };

@@ -104,7 +104,7 @@ export default function SignIn(props: ISignInProps) {
             label="Email Address"
             name="email"
             autoComplete="email"
-            onChange={e => setEmail(e.target.value.toLowerCase())}
+            onChange={e => setEmail(e.target.value.trim().toLowerCase())}
             autoFocus
           />
           <TextField

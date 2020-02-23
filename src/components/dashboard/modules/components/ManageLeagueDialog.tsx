@@ -131,6 +131,7 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
                     onAdd={(chip) => (isEmail(chip) && addMember(chip))}
                     onDelete={(chip, index) => removeMember(index)}
                     fullWidth={true}
+                    newChipKeys={['Enter', ' ', ',']}
                     fullWidthInput={true}
                     placeholder="abc@xyz.com"
                     label="Emails"
