@@ -13,7 +13,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import theme from './theme';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-// import config from './config';
 import DateFnsUtils from '@date-io/date-fns';
 import { SnackbarProvider } from 'notistack';
 
@@ -49,43 +48,50 @@ const Root: React.FC<{}> = (props) => {
     );
 };
 
-// Amplify.configure({
-//     Auth: {
-//         mandatorySignIn: true,
-//         region: config.cognito.REGION,
-//         userPoolId: config.cognito.USER_POOL_ID,
-//         identityPoolId: config.cognito.IDENTITY_POOL_ID,
-//         userPoolWebClientId: config.cognito.APP_CLIENT_ID
-//     },
-//     API: {
-//         endpoints: [
-//             {
-//                 name: "tru-fan",
-//                 endpoint: config.apiGateway.URL,
-//                 region: config.apiGateway.REGION
-//             },
-//         ]
-//     }
-// });
+if (process.env.REACT_APP_STAGE === 'prod') {
+    Amplify.configure({
+        Auth: {
+            mandatorySignIn: true,
+            region: process.env.REACT_APP_REGION,
+            userPoolId: process.env.REACT_APP_COGNITO_USERPOOL,
+            identityPoolId: process.env.REACT_APP_COGNITO_IDENTITYPOOL,
+            userPoolWebClientId: process.env.REACT_APP_COGNITO_APPCLIENT
+        },
+        API: {
+            endpoints: [
+                {
+                    name: "tru-fan",
+                    endpoint: process.env.REACT_APP_APIGATEWAY,
+                    region: process.env.REACT_APP_REGION
+                },
+            ]
+        }
+    });
+} else {
+    const config = require('./config').default;
+    Amplify.configure({
+        Auth: {
+            mandatorySignIn: true,
+            region: config.cognito.REGION,
+            userPoolId: config.cognito.USER_POOL_ID,
+            identityPoolId: config.cognito.IDENTITY_POOL_ID,
+            userPoolWebClientId: config.cognito.APP_CLIENT_ID
+        },
+        API: {
+            endpoints: [
+                {
+                    name: "tru-fan",
+                    endpoint: config.apiGateway.URL,
+                    region: config.apiGateway.REGION
+                },
+            ]
+        }
+    });
 
-Amplify.configure({
-    Auth: {
-        mandatorySignIn: true,
-        region: process.env.REACT_APP_REGION,
-        userPoolId: process.env.REACT_APP_COGNITO_USERPOOL,
-        identityPoolId: process.env.REACT_APP_COGNITO_IDENTITYPOOL,
-        userPoolWebClientId: process.env.REACT_APP_COGNITO_APPCLIENT
-    },
-    API: {
-        endpoints: [
-            {
-                name: "tru-fan",
-                endpoint: process.env.REACT_APP_APIGATEWAY,
-                region: process.env.REACT_APP_REGION
-            },
-        ]
-    }
-});
+}
+
+
+
 
 ReactDOM.render(<Root />, document.getElementById('root'));
 
