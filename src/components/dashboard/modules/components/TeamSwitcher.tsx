@@ -31,6 +31,12 @@ const useStyles = makeStyles({
     },
     rootPaper: {
         padding: theme.spacing(2)
+    },
+    correctPrediction: {
+        background: '#91ff91a6'
+    },
+    wrongPrediction: {
+        background: '#ff9d9d63'
     }
 });
 
@@ -94,20 +100,29 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
             setCache(newValue as number);
         }
     };
-    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => switchTeam(name);
-    const _momHandler = (e: object, value: IPlayerOption | null) => setMom(value?.player || "");
-    const _confidenceHandler = (e: object, newValue: number | number[]) => setConfidence(cache);
+    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => !matchCompleted && switchTeam(name);
+    const _momHandler = (e: object, value: IPlayerOption | null) => !matchCompleted && setMom(value?.player || "");
+    const _confidenceHandler = (e: object, newValue: number | number[]) => !matchCompleted && setConfidence(cache);
 
     const _timeRemainingRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
-        if (matchCompleted || completed) return `Winner: ${winner} Man of the match: ${matchMom}`;
+        if (matchCompleted || completed) return (
+            <div>
+                <div>{`Winner: ${winner}`}</div>
+                <div>{`Man of the match: ${matchMom}`}</div>
+            </div>
+        );
         return `${days} days, ${hours} hours, ${minutes} minutes`;
     }
 
     const startDate = new Date(start);
     const formattedMom = { team, player: mom };
+    const disabled = matchCompleted || !team;
 
     return (
-        <Card className={classes.rootPaper} variant="outlined">
+        <Card
+            className={clsx(classes.rootPaper, matchCompleted && (team === winner ? classes.correctPrediction : classes.wrongPrediction))}
+            variant="outlined"
+        >
             <CardHeader
                 title={
                     <Box
@@ -121,6 +136,9 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                     <>
                         <div>{`${startDate.toDateString()}`}</div>
                         <Countdown date={startDate} renderer={_timeRemainingRenderer} />
+                        <Typography component="h2" variant="h5">
+                            {!!confidence ? `Confidence ${confidence}%` : ""}
+                        </Typography>
                     </>
                 }
             />
@@ -169,7 +187,9 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                                 tournament={tournament}
                                 leftTeam={left}
                                 rightTeam={right}
-                                disabled={!team}
+                                wrong={matchCompleted && mom !== matchMom}
+                                correct={matchCompleted && mom === matchMom}
+                                disabled={disabled}
                                 changeHandler={_momHandler}
                             />
                         </Grid>
@@ -177,7 +197,7 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                     <Grid item container alignItems="flex-start">
                         <ConfidenceSlider
                             value={cache}
-                            disabled={!team}
+                            disabled={disabled}
                             onChange={_onCacheChange}
                             onChangeCommitted={_confidenceHandler}
                             aria-labelledby="discrete-slider"

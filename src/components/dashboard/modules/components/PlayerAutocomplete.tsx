@@ -12,6 +12,8 @@ interface IPlayerAutocompleteProps {
     leftTeam: string;
     rightTeam: string;
     disabled: boolean;
+    wrong?: boolean;
+    correct?: boolean;
     changeHandler: (e: object, value: IPlayerOption | null) => void;
 }
 
@@ -20,7 +22,7 @@ interface IPlayerAutocompleteProps {
 
 export default function PlayerAutocomplete(props: IPlayerAutocompleteProps) {
 
-    const { leftTeam, rightTeam, changeHandler, value, tournament, disabled } = props;
+    const { leftTeam, rightTeam, changeHandler, value, tournament, disabled, wrong } = props;
     const [players, setPlayers] = useState<IPlayerOption[]>([]);
     const [openPlayers, setOpenPlayers] = React.useState(false);
     const loading = openPlayers && players.length === 0;
@@ -82,6 +84,7 @@ export default function PlayerAutocomplete(props: IPlayerAutocompleteProps) {
                     <TextField
                         {...params}
                         label="Man of the Match"
+                        error={wrong}
                         variant="outlined"
                         placeholder="Man of the Match"
                         fullWidth
