@@ -46,7 +46,6 @@ export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
   const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  console.log(props.formFields);
   return (
     <React.Fragment>
       <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition} fullScreen={fullScreen}>

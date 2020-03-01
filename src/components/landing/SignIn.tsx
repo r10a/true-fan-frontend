@@ -12,6 +12,7 @@ import Container from '@material-ui/core/Container';
 import { Link as RouterLink } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
 import { URL } from '../../Routes';
+import { isAdmin } from '../../App';
 
 function Copyright() {
   return (
@@ -49,6 +50,7 @@ const useStyles = makeStyles(theme => ({
 interface ISignInProps {
   isAuthenticated: boolean;
   userHasAuthenticated: (isAuthenticated: boolean) => void;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
   history: any;
 }
 
@@ -66,6 +68,7 @@ export default function SignIn(props: ISignInProps) {
       try {
         await Auth.signIn(email, password);
         props.userHasAuthenticated(true);
+        props.setIsAdmin(await isAdmin());
         props.history.push(URL.DASHBOARD.HOME);
       } catch (e) {
         setError(e.message);
@@ -79,7 +82,7 @@ export default function SignIn(props: ISignInProps) {
   const validateForm = () => {
     return email.length > 0 && password.length > 0;
   };
-  
+
   return (
     <Container component="main" maxWidth="xs">
       <div className={classes.paper}>
@@ -90,9 +93,9 @@ export default function SignIn(props: ISignInProps) {
           Sign in
         </Typography>
         <Grid item>
-            <Link component={RouterLink} to={URL.SIGNUP} variant="body2">
-                {"Not a member yet?"}
-            </Link>
+          <Link component={RouterLink} to={URL.SIGNUP} variant="body2">
+            {"Not a member yet?"}
+          </Link>
         </Grid>
         <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <TextField
@@ -104,7 +107,7 @@ export default function SignIn(props: ISignInProps) {
             label="Email Address"
             name="email"
             autoComplete="email"
-            onChange={e => setEmail(e.target.value.toLowerCase())}
+            onChange={e => setEmail(e.target.value.trim().toLowerCase())}
             autoFocus
           />
           <TextField
@@ -134,7 +137,7 @@ export default function SignIn(props: ISignInProps) {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link 
+              <Link
                 component={RouterLink}
                 to={URL.FORGOT_PASSWORD}
                 variant="body2">

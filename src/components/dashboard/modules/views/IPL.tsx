@@ -6,7 +6,7 @@ import Intro from '../components/Intro';
 import JumboButton from '../components/JumboButton';
 import { URL } from '../../../../Routes';
 import CreateLeagueDialog from '../components/CreateLeagueDialog';
-import { cloneDeep, isEmpty, reduce, map, sortBy, reverse, get } from 'lodash-es';
+import { cloneDeep, isEmpty, reduce, map, sortBy, reverse, get, } from 'lodash-es';
 import { check } from '../../../landing/modules/form/validation';
 import LeagueAPI, { ICreateLeaguePayload } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
@@ -113,12 +113,14 @@ export default function IPL(props: IDashboardProps) {
     const fields = [
         { id: "leagueName", label: "League Name" },
         { id: "description", label: "Description" },
-        { id: "leagueType", label: "Type" },
+        // { id: "leagueType", label: "Type" },
     ];
 
     const validate = () => {
         const errors = cloneDeep(helperTexts);
         check(isEmpty(formFields.leagueName), "leagueName", "Required", errors);
+        check(!(/^[A-Za-z0-9-]*$/.test(formFields.leagueName.trim())) || formFields.leagueName.trim().length > 20
+        , "leagueName", "Only less than 20 characters, numbers, and dashes allowed", errors);
 
         setHelperText(errors);
         return reduce(errors, (acc, value) => {
@@ -139,7 +141,6 @@ export default function IPL(props: IDashboardProps) {
                     dispatch({ type: LEAGUE_ACTIONS.GET_USER_LEAGUES });
                 })
                 .catch((err) => {
-                    console.log(err);
                     const errors = cloneDeep(helperTexts);
                     if (err.response.data.error.message === "Already Exists") {
                         check(true, "leagueName", "League already exists! Please choose a different name.", errors);
@@ -154,7 +155,7 @@ export default function IPL(props: IDashboardProps) {
 
     const navigateToLeague = (leagueName: string) => {
         const url = URL.DASHBOARD.SURVIVOR
-            .replace(":game", "IPL")
+            .replace(":game", "IPL-2020")
             .replace(":league", leagueName);
         props.history.push(url)
     };

@@ -106,6 +106,8 @@ const useStyles = makeStyles(theme => ({
 interface IAppAppBarProps {
   isAuthenticated: boolean;
   userHasAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
+  admin: boolean;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 };
@@ -149,6 +151,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
     handleClose(event);
     await Auth.signOut();
     props.userHasAuthenticated(false);
+    props.setIsAdmin(false);
     history.push(URL.HOME);
   };
 

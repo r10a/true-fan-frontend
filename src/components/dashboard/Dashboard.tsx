@@ -7,6 +7,7 @@ interface IDashboardProps {
     userHasAuthenticated: (isAuthenticated: boolean) => void;
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
+    admin: boolean;
     history: any;
 }
 
@@ -66,6 +67,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props: IDashboardProps) {
     if (!props.isAuthenticated) props.history.push(URL.HOME);
+    if (props.admin) props.history.push(URL.DASHBOARD.SCHEDULE_EDITOR.replace(":game", "IPL-2020"));
     const classes = useStyles();
 
     return (

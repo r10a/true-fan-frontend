@@ -72,9 +72,6 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
 
     const [members, setMembers] = useState([] as string[]);
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
-    // const dispatch = useDispatch();
-
-    console.log("selectedLeague", props.league);
 
     // constructor and destructor
     useEffect(() => {
@@ -131,6 +128,7 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
                     onAdd={(chip) => (isEmail(chip) && addMember(chip))}
                     onDelete={(chip, index) => removeMember(index)}
                     fullWidth={true}
+                    newChipKeys={['Enter', ' ', ',']}
                     fullWidthInput={true}
                     placeholder="abc@xyz.com"
                     label="Emails"

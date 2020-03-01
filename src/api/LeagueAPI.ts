@@ -1,7 +1,7 @@
 import { GAME_TYPE } from "../components/dashboard/Dashboard";
 import { API, Auth } from "aws-amplify";
 
-interface IAPIResult {
+interface IAPIQueryResult {
     Count: number;
     ScannedCount: number;
 }
@@ -15,15 +15,27 @@ export interface ICreateLeaguePayload {
     created?: string;
 }
 
-export interface IUserLeagues extends IAPIResult {
+export interface IUserLeagues extends IAPIQueryResult {
     Items: Array<{
         adminLeagues: ICreateLeaguePayload[];
         userLeagues: ICreateLeaguePayload[];
     }>;
 }
 
-export interface IUserLeagueMembers extends IAPIResult {
+export interface IUserLeagueMembers extends IAPIQueryResult {
     Items: ILeagueMemberPayload[];
+}
+
+export interface IGameScheduleResult  {
+    result: {
+        Item: IGameSchedule;
+    };
+}
+
+export interface IPlayerListResult {
+    result: {
+        Item: ITeamPlayers;
+    };
 }
 
 export interface ILeagueMemberPayload {
@@ -31,20 +43,45 @@ export interface ILeagueMemberPayload {
     userId: string;
 }
 
-export interface ISurvivorPrediction {
+export interface IPrediction {
     team: string;
     mom: string;
+    confidence: number;
+}
+
+export interface IGameSchedule {
+    tournament: string;
+    modified: string;
+    schedule: IMatch[];
+}
+
+export interface IMatch {
+    start: string;
+    mom: string;
+    right: string;
+    left: string;
+    completed: boolean;
+    winner: string;
+    end: string;
+}
+
+export interface ITeamPlayers {
+    tournament: string;
+    team: string;
+    players: string[];
 }
 
 interface ISurvivorPredictionPayload {
-    predictions: ISurvivorPrediction[];
+    predictions: IPrediction[];
     tournament: string;
     leagueName: string;
     userId?: string;
 }
 
-export interface ISurvivorPredictionResult extends IAPIResult {
-    Item: ISurvivorPredictionPayload;
+export interface ISurvivorPredictionResult {
+    result: {
+        Item: ISurvivorPredictionPayload;
+    };
 }
 
 const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues> => {
@@ -60,7 +97,6 @@ const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues
 
 const getUserLeagues = async (): Promise<Array<ICreateLeaguePayload>> => {
     const user = await Auth.currentAuthenticatedUser();
-    console.log(user);
     return API.get("tru-fan", `/get-leagues/${user.attributes.email}`, {
         headers: {}
     });
@@ -78,9 +114,15 @@ const setLeagueMembers = async (leagueName: string, members: string[]): Promise<
     });
 }
 
-const getIPLSchedule = async () => {
-    return API.get("tru-fan", "/get-ipl-schedule", {
+const getSchedule = async (tournament: string): Promise<IGameScheduleResult> => {
+    return API.get("tru-fan", `/get-schedule/${tournament}`, {
         headers: {}
+    });
+};
+
+const updateSchedule = async (tournament: string, schedule: IMatch[]): Promise<IGameScheduleResult> => {
+    return API.post("tru-fan", `/update-schedule/${tournament}`, {
+        body: { schedule }
     });
 };
 
@@ -88,6 +130,10 @@ const getSurvivorPrediction = async (tournament: string, leagueName: string) => 
     const user = await Auth.currentAuthenticatedUser();
     return API.get("tru-fan", `/get-survivor-prediction/${tournament}/${leagueName}/${user.attributes.email}`, {
         headers: {}
+    }).catch(error => {
+        if (error.response.data.error.message === "No such Item exists") {
+            return Promise.resolve({});
+        }
     });
 };
 
@@ -98,12 +144,20 @@ const setSurvivorPrediction = async (payload: ISurvivorPredictionPayload): Promi
     });
 };
 
+const getPlayers = async (tournament: string, team: string): Promise<IPlayerListResult> => {
+    return API.get("tru-fan", `/get-players/${tournament}/${team}`, {
+        headers: {}
+    });
+};
+
 export default {
     create: createLeague,
     getUserLeagues,
     getLeagueMembers,
     setLeagueMembers,
-    getIPLSchedule,
+    getSchedule,
+    updateSchedule,
     getSurvivorPrediction,
-    setSurvivorPrediction
+    setSurvivorPrediction,
+    getPlayers
 };
