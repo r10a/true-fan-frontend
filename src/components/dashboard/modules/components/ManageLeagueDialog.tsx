@@ -84,11 +84,10 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
     useEffect(() => {
         const updateMembers = async () => {
             const response = await store.members;
-            console.log(JSON.stringify(response), map(get(response, "result.Items"), "userId"));
             setMembers(map(get(response, "result.Items", {}), "userId"));
         }
         updateMembers();
-    }, [store]);
+    }, [store.members]);
 
     const chipMembers = cloneDeep(members);
 

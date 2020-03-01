@@ -81,7 +81,7 @@ export default function IPL(props: IDashboardProps) {
             setUserLeagues(sortedUserLeagues);
         }
         updateUserLeagues();
-    }, [store]);
+    }, [store.user_leagues]);
 
     const links = {
         header: {

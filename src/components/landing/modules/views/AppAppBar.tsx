@@ -156,7 +156,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
   };
 
   return (
-    <div>
+    <>
       <AppBar position="fixed">
         <Toolbar className={classes.toolbar}>
           <div className={classes.left} >
@@ -277,6 +277,6 @@ export default function AppAppBar(props: IAppAppBarProps) {
         </List>
       </Drawer>
       <div className={classes.placeholder} />
-    </div>
+    </>
   );
 }

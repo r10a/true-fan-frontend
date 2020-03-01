@@ -2,7 +2,7 @@ import { combineReducers} from 'redux';
 import LeagueReducer from './LeagueReducer';
 
 const inboudReducers = {
-    LeagueReducer
+    LeagueReducer,
 };
 
 export type reducers = typeof inboudReducers;

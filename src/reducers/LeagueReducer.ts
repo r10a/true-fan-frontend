@@ -13,15 +13,15 @@ export const LEAGUE_ACTIONS = {
 
 export interface ILeagueState {
     user_leagues: IUserLeagues;
-    members: IUserLeagueMembers;
-    schedule: IGameScheduleResult;
+    members: Promise<IUserLeagueMembers>;
+    schedule: Promise<IGameScheduleResult>;
     [key: string]: any;
 }
 
 const initialState: ILeagueState = {
     user_leagues: {} as IUserLeagues,
-    members: {} as IUserLeagueMembers,
-    schedule: {} as IGameScheduleResult,
+    members: {} as Promise<IUserLeagueMembers>,
+    schedule: {} as Promise<IGameScheduleResult>,
 };
 
 export default (state: ILeagueState = initialState, action: any) => {
