@@ -35,35 +35,33 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface IIntroProps {
-    post: {
-        image: string;
-        imgText: string;
-        title: string;
-        description: string;
-        linkText: string;
-    };
+  image: string;
+  imgText: string;
+  title: string;
+  description: string;
+  linkText: string;
 }
 
-export default function Intro(props: IIntroProps) {
+function Intro(props: IIntroProps) {
   const classes = useStyles();
-  const { post } = props;
+  const { image, imgText, title, description, linkText } = props;
 
   return (
-    <Paper className={classes.mainFeaturedPost} style={{ backgroundImage: `url(${post.image})` }}>
+    <Paper className={classes.mainFeaturedPost} style={{ backgroundImage: `url(${image})` }}>
       {/* Increase the priority of the hero background image */}
-      {<img style={{ display: 'none' }} src={post.image} alt={post.imgText} />}
+      {<img style={{ display: 'none' }} src={image} alt={imgText} />}
       <div className={classes.overlay} />
       <Grid container>
         <Grid item md={6}>
           <div className={classes.mainFeaturedPostContent}>
             <Typography component="h1" variant="h3" color="inherit" gutterBottom>
-              {post.title}
+              {title}
             </Typography>
             <Typography variant="h5" color="inherit" paragraph>
-              {post.description}
+              {description}
             </Typography>
             <Link variant="subtitle1" href="#">
-              {post.linkText}
+              {linkText}
             </Link>
           </div>
         </Grid>
@@ -71,3 +69,5 @@ export default function Intro(props: IIntroProps) {
     </Paper>
   );
 }
+
+export default React.memo(Intro);

@@ -165,16 +165,6 @@ export default function Survivor(props: ISurvivorProps) {
         setConfidenceScores(currConfidenceScores);
     };
 
-    const links = {
-        header: {
-            title: props.match.params.game,
-            description: props.match.params.league,
-            image: 'https://source.unsplash.com/random',
-            imgText: 'main image description',
-            linkText: '',
-        }
-    };
-
     const updatePredictionHandler = (index: number, prediction: IPrediction) => {
         const currUserSchedule = cloneDeep(userMatches);
         set(currUserSchedule, [index, "prediction"], prediction);
@@ -222,7 +212,13 @@ export default function Survivor(props: ISurvivorProps) {
         <React.Fragment>
             <Container maxWidth="lg" className={classes.mainGrid} >
                 <main>
-                    <Intro post={links.header} />
+                    <Intro
+                        title={props.match.params.game}
+                        description={props.match.params.league}
+                        image="https://source.unsplash.com/random"
+                        imgText="main image description"
+                        linkText=""
+                    />
                     <SurvivorStatusBar
                         classes={classes}
                         confidenceScores={confidenceScores}

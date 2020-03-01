@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function Title(props: { title: string }) {
+function Title(props: { title: string }) {
     const classes = useStyles();
     return (
         <React.Fragment>
@@ -19,3 +19,5 @@ export default function Title(props: { title: string }) {
         </React.Fragment>
     )
 }
+
+export default React.memo(Title);

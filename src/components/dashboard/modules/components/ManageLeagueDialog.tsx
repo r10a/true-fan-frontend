@@ -119,7 +119,7 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
             </DialogTitle>
             <DialogContent dividers>
                 <Typography gutterBottom>
-                    You can invite people to play in your Private League. Just enter their Email's below.
+                    You can invite people to play in your Private League. Just enter their email's below.
                 </Typography>
                 <ChipInput
                     defaultValue={chipMembers}

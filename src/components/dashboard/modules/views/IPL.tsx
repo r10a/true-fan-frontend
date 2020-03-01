@@ -50,6 +50,8 @@ export default function IPL(props: IDashboardProps) {
     const [isCreateOpen, openCreate] = useState(false);
     const [isManageOpen, openManage] = useState(false);
 
+    const tournament = "IPL-2020"; // TODO: Refactor later
+
     const [formFields, setFormField] = useState({
         leagueName: "", description: "", leagueType: GAME_TYPE.SURVIVOR
     });
@@ -83,33 +85,6 @@ export default function IPL(props: IDashboardProps) {
         updateUserLeagues();
     }, [store.user_leagues]);
 
-    const links = {
-        header: {
-            title: 'IPL',
-            description:
-                "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-            image: 'https://source.unsplash.com/random',
-            imgText: 'main image description',
-            linkText: '',
-        },
-        create: {
-            title: 'Create a Private League',
-            description:
-                "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-            image: 'https://source.unsplash.com/random',
-            imgText: 'main image description',
-            linkText: 'Continue reading…',
-        },
-        join: {
-            title: 'Public Leagues coming soon',
-            description:
-                "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-            image: 'https://source.unsplash.com/random',
-            imgText: 'main image description',
-            linkText: 'Start',
-        }
-    };
-
     const fields = [
         { id: "leagueName", label: "League Name" },
         { id: "description", label: "Description" },
@@ -120,7 +95,7 @@ export default function IPL(props: IDashboardProps) {
         const errors = cloneDeep(helperTexts);
         check(isEmpty(formFields.leagueName), "leagueName", "Required", errors);
         check(!(/^[A-Za-z0-9-]*$/.test(formFields.leagueName.trim())) || formFields.leagueName.trim().length > 20
-        , "leagueName", "Only less than 20 characters, numbers, and dashes allowed", errors);
+            , "leagueName", "Only less than 20 characters, numbers, and dashes allowed", errors);
 
         setHelperText(errors);
         return reduce(errors, (acc, value) => {
@@ -132,7 +107,7 @@ export default function IPL(props: IDashboardProps) {
         if (validate()) {
             const payload: ICreateLeaguePayload = {
                 ...formFields,
-                tournament: "IPL",
+                tournament,
                 userId: "" // will be set later in LeagueAPI
             };
             LeagueAPI.create(payload)
@@ -155,7 +130,7 @@ export default function IPL(props: IDashboardProps) {
 
     const navigateToLeague = (leagueName: string) => {
         const url = URL.DASHBOARD.SURVIVOR
-            .replace(":game", "IPL-2020")
+            .replace(":game", tournament)
             .replace(":league", leagueName);
         props.history.push(url)
     };
@@ -164,26 +139,43 @@ export default function IPL(props: IDashboardProps) {
         <React.Fragment>
             <Container maxWidth="lg" className={classes.mainGrid} >
                 <main>
-                    <Intro post={links.header} />
+                    <Intro
+                        title={tournament}
+                        description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
+                        image="https://source.unsplash.com/random"
+                        imgText="main image description"
+                        linkText=""
+                    />
                     <Grid container spacing={4}>
-                        <JumboButton post={links.create} onClick={() => openCreate(true)} />
-                        <JumboButton post={links.join} onClick={() => console.log("Join public")} />
+                        <JumboButton
+                            title={tournament}
+                            description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
+                            image="https://source.unsplash.com/random"
+                            imgText="main image description"
+                            onClick={() => openCreate(true)}
+                        />
+                        <JumboButton
+                            title="Public Leagues coming soon"
+                            description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
+                            image="https://source.unsplash.com/random"
+                            imgText="main image description"
+                            onClick={() => console.log("Join public")}
+                        />
                     </Grid>
                     <Grid container spacing={4}>
-                        <Grid item xs={12}>
-                            <Paper elevation={3} className={classes.leaguesSection}>
-                                <Title title="Leagues you own" />
-                                <Grid container spacing={2}>
-                                    {
-                                        !isEmpty(adminLeagues) ?
+                        {
+                            !isEmpty(adminLeagues) &&
+                            <Grid item xs={12}>
+                                <Paper elevation={3} className={classes.leaguesSection}>
+                                    <Title title="Leagues you own" />
+                                    <Grid container spacing={2}>
+                                        {
                                             map(adminLeagues, (league) => (
                                                 <Grid item xs={12} key={league.leagueName}>
                                                     <CardListItem
-                                                        post={{
-                                                            title: league.leagueName,
-                                                            description: league.description,
-                                                            owner: league.userId
-                                                        }}
+                                                        title={league.leagueName}
+                                                        description={league.description}
+                                                        owner={league.userId}
                                                         onClick={() => navigateToLeague(league.leagueName)}
                                                         onOptionsClick={() => {
                                                             setSelectedLeague(league);
@@ -192,29 +184,28 @@ export default function IPL(props: IDashboardProps) {
                                                         }}
                                                     />
                                                 </Grid>
-                                            )) : <Grid item xs={12}>You don't own any Leagues</Grid>
-                                    }
-                                </Grid>
-                            </Paper>
-                        </Grid>
+                                            ))
+                                        }
+                                    </Grid>
+                                </Paper>
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <Paper elevation={3} className={classes.leaguesSection}>
-                                <Title title="Leagues you are member of" />
+                                <Title title="League invites" />
                                 <Grid container spacing={2}>
                                     {
                                         !isEmpty(userLeagues) ?
                                             map(userLeagues, (league) => (
                                                 <Grid item xs={12} key={league.leagueName}>
                                                     <CardListItem
-                                                        post={{
-                                                            title: league.leagueName,
-                                                            description: league.description,
-                                                            owner: league.userId
-                                                        }}
+                                                        title={league.leagueName}
+                                                        description={league.description}
+                                                        owner={league.userId}
                                                         onClick={() => navigateToLeague(league.leagueName)}
                                                     />
                                                 </Grid>
-                                            )) : <Grid item xs={12}>You are not a part of any Leagues</Grid>
+                                            )) : <Grid item xs={12}>You are not invited to any Leagues yet</Grid>
                                     }
                                 </Grid>
                             </Paper>
@@ -228,7 +219,7 @@ export default function IPL(props: IDashboardProps) {
                         helperTexts={helperTexts}
                         handleClose={() => openCreate(false)}
                         handleSubmit={createLeague}
-                        type="IPL"
+                        type={tournament}
                     />
                     <ManageLeagueDialog
                         open={isManageOpen}

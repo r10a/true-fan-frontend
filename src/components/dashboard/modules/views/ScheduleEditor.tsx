@@ -122,15 +122,6 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
         setSchedule(schedule);
     };
 
-    const links = {
-        header: {
-            title: props.match.params.game,
-            description: props.match.params.league,
-            image: 'https://source.unsplash.com/random',
-            imgText: 'main image description',
-            linkText: '',
-        }
-    };
 
     const updateMatchHandler = (index: number, match: IMatch) => {
         const currSchedule = cloneDeep(schedule);
@@ -169,7 +160,13 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
     return (
         <Container maxWidth="lg" className={classes.mainGrid} >
             <main>
-                <Intro post={links.header} />
+                <Intro
+                    title={tournament}
+                    description=""
+                    image="https://source.unsplash.com/random"
+                    imgText="main image description"
+                    linkText=""
+                />
                 <SurvivorStatusBar
                     classes={classes}
                     confidenceScores={[]}

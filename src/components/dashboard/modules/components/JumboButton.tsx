@@ -21,19 +21,16 @@ const useStyles = makeStyles({
 });
 
 interface IJumboButtonProps {
-    post: {
-        image: string;
-        imgText: string;
-        title: string;
-        description: string;
-        linkText: string;
-    };
-    onClick: () => void;
+  image: string;
+  imgText: string;
+  title: string;
+  description: string;
+  onClick: () => void;
 }
 
-export default function JumboButton(props: IJumboButtonProps) {
+function JumboButton(props: IJumboButtonProps) {
   const classes = useStyles();
-  const { post } = props;
+  const { image, imgText, title, description } = props;
 
   return (
     <Grid item xs={12} md={6}>
@@ -42,18 +39,20 @@ export default function JumboButton(props: IJumboButtonProps) {
           <div className={classes.cardDetails}>
             <CardContent>
               <Typography component="h2" variant="h5">
-                {post.title}
+                {title}
               </Typography>
               <Typography variant="subtitle1" paragraph>
-                {post.description}
+                {description}
               </Typography>
             </CardContent>
           </div>
           <Hidden xsDown>
-            <CardMedia className={classes.cardMedia} image={post.image} title={post.imgText} />
+            <CardMedia className={classes.cardMedia} image={image} title={imgText} />
           </Hidden>
         </Card>
       </CardActionArea>
     </Grid>
   );
 }
+
+export default React.memo(JumboButton);

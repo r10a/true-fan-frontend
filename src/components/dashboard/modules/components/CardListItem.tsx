@@ -21,18 +21,16 @@ const useStyles = makeStyles({
 });
 
 interface ICardListItemProps {
-    post: {
-        title: string;
-        description: string;
-        owner: string;
-    };
+    title: string;
+    description: string;
+    owner: string;
     onClick: () => void;
     onOptionsClick?: () => void;
 }
 
-export default function CardListItem(props: ICardListItemProps) {
+function CardListItem(props: ICardListItemProps) {
     const classes = useStyles();
-    const { post } = props;
+    const { title, description, owner } = props;
 
     return (
         <Grid item xs={12}>
@@ -43,13 +41,13 @@ export default function CardListItem(props: ICardListItemProps) {
                             <Grid container spacing={4} justify="center" alignItems="center">
                                 <Grid item xs={8} md={10} onClick={props.onClick}>
                                     <Typography component="h2" variant="h5">
-                                        {post.title}
+                                        {title}
                                     </Typography>
                                     <Typography variant="subtitle1" paragraph>
-                                        {post.description}
+                                        {description}
                                     </Typography>
                                     <Typography variant="subtitle2" paragraph>
-                                        {post.owner}
+                                        {owner}
                                     </Typography>
                                 </Grid>
                                 {
@@ -68,3 +66,5 @@ export default function CardListItem(props: ICardListItemProps) {
         </Grid>
     );
 }
+
+export default React.memo(CardListItem);
