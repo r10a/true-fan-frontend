@@ -7,6 +7,7 @@ import ResetPassword from './components/landing/ResetPassword';
 import Dashboard from './components/dashboard/Dashboard';
 import IPL from './components/dashboard/modules/views/IPL';
 import Survivor from './components/dashboard/modules/views/Survivor';
+import ScheduleEditor from './components/dashboard/modules/views/ScheduleEditor';
 
 const AppliedRoute = ({ component: C, appProps, ...rest }) => {
     return <Route {...rest} render={props => <C {...props} {...appProps} />} />;
@@ -23,7 +24,8 @@ export const URL = {
     DASHBOARD: {
         HOME: "/dashboard",
         IPL: "/dashboard/IPL",
-        SURVIVOR: "/dashboard/:game/:league/survivor"
+        SURVIVOR: "/dashboard/:game/:league/survivor",
+        SCHEDULE_EDITOR: "/dashboard/:game/editor",
     },
     FORGOT_PASSWORD: "/reset-password"
 };
@@ -38,6 +40,7 @@ export default (props) => {
             <AppliedRoute path={URL.DASHBOARD.HOME} exact component={Dashboard} appProps={props} />
             <AppliedRoute path={URL.DASHBOARD.IPL} exact component={IPL} appProps={props} />
             <AppliedRoute path={URL.DASHBOARD.SURVIVOR} exact component={Survivor} appProps={props} />
+            <AppliedRoute path={URL.DASHBOARD.SCHEDULE_EDITOR} exact component={ScheduleEditor} appProps={props} />
             <Route component={NotFound} />
         </Switch>
     );

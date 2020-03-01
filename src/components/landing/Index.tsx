@@ -1,6 +1,5 @@
 // --- Post bootstrap -----
 import React from 'react';
-// import AppAppBar from './modules/views/AppAppBar';
 import ProductHero from './modules/views/ProductHero';
 import ProductValues from './modules/views/ProductValues';
 import ProductCategories from './modules/views/ProductCategories';
@@ -10,6 +9,7 @@ import { URL } from '../../Routes';
 
 interface IIndexProps {
   isAuthenticated: boolean;
+  isAdmin: boolean;
   history: any;
 }
 

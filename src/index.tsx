@@ -12,18 +12,22 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import theme from './theme';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
 const store = createStore(inboundReducers, applyMiddleware(thunk));
 
 const Root: React.FC<{}> = (props) => {
     return (
         <Provider store={store} >
-            <Router>
-                <ThemeProvider theme={theme}>
-                    <CssBaseline />
-                    <App />
-                </ThemeProvider>
-            </Router>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <Router>
+                    <ThemeProvider theme={theme}>
+                        <CssBaseline />
+                        <App />
+                    </ThemeProvider>
+                </Router>
+            </MuiPickersUtilsProvider>
         </Provider>
     );
 };

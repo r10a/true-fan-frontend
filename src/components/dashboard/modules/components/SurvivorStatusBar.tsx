@@ -2,25 +2,23 @@ import React from 'react';
 import { AppBar, Toolbar, Grid, Badge, Avatar, Button } from '@material-ui/core';
 import SaveIcon from '@material-ui/icons/Save';
 import { map } from 'lodash-es';
+import { IConfidenceScore } from '../views/Survivor';
 
 export interface ISurvivorStatusProps {
     classes: Record<any, string>;
-    confScoreMap: Array<{
-        score: number;
-        remaining: number;
-    }>;
+    confidenceScores: IConfidenceScore[];
     save: () => void;
 }
 
-export default function SurvivorStatusBar(props: ISurvivorStatusProps) {
-    const { classes } = props;
+function SurvivorStatusBar(props: ISurvivorStatusProps) {
+    const { classes, confidenceScores } = props;
 
     return (
         <AppBar position="sticky" className={classes.statusBar}>
             <Toolbar>
                 <Grid container spacing={1} justify="center">
                     {
-                        map(props.confScoreMap, ({ score, remaining }) => {
+                        map(confidenceScores, ({ score, remaining }) => {
                             return (
                                 <Grid item xs md={1} key={score.toString()}>
                                     <Badge
@@ -51,3 +49,5 @@ export default function SurvivorStatusBar(props: ISurvivorStatusProps) {
         </AppBar>
     )
 }
+
+export default React.memo(SurvivorStatusBar);

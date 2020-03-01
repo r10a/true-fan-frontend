@@ -5,7 +5,7 @@ export const LEAGUE_ACTIONS = {
     CREATE_LEAGUE: "CREATE_LEAGUE",
     GET_USER_LEAGUES: "GET_USER_LEAGUES",
     GET_LEAGUE_MEMBERS: "GET_LEAGUE_MEMBERS",
-    GET_IPL_SCHEDULE: "GET_IPL_SCHEDULE",
+    GET_SCHEDULE: "GET_SCHEDULE",
     GET_SURVIVOR_PREDICTION: "GET_SURVIVOR_PREDICTION",
     SET_SURVIVOR_PREDICTION: "SET_SURVIVOR_PREDICTION",
     RESET: "RESET"
@@ -38,7 +38,7 @@ export default (state: ILeagueState = initialState, action: any) => {
                 members: LeagueAPI.getLeagueMembers(action.leagueName),
             }
         }
-        case LEAGUE_ACTIONS.GET_IPL_SCHEDULE: {
+        case LEAGUE_ACTIONS.GET_SCHEDULE: {
             return {
                 ...state,
                 schedule: LeagueAPI.getSchedule(action.tournament)

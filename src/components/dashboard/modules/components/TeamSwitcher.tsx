@@ -5,14 +5,15 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import CardContent from '@material-ui/core/CardContent';
-import { ISurvivorPrediction } from '../../../../api/LeagueAPI';
+import Countdown, { CountdownRenderProps } from 'react-countdown-now';
+import { IPrediction } from '../../../../api/LeagueAPI';
 import theme from '../../../../theme';
-import { ConfidenceSlider } from './ConfidenceSlider';
-import { TextField, Paper } from '@material-ui/core';
-import { ISurvivorStatusProps } from './SurvivorStatusBar';
-import { min, map, filter, find } from 'lodash-es';
+import ConfidenceSlider from './ConfidenceSlider';
+import PlayerAutocomplete from './PlayerAutocomplete';
+import { CardHeader } from '@material-ui/core';
+import { IUserMatch, IConfidenceScore } from '../views/Survivor';
+import { find } from 'lodash-es';
 
 const useStyles = makeStyles({
     card: {
@@ -28,45 +29,40 @@ const useStyles = makeStyles({
         backgroundColor: theme.palette.primary.light,
         color: 'white'
     },
-    slider: {
-
-    },
     rootPaper: {
         padding: theme.spacing(2)
     }
 });
 
 interface ITeamSwitcherProps {
-    leftTeam: {
-        name: string;
-        description: string;
-        owner: string;
-    };
-    rightTeam: {
-        name: string;
-        description: string;
-        owner: string;
-    };
-    prediction: ISurvivorPrediction;
+    userMatch: IUserMatch;
+    tournament: string;
     index: number;
-    confScoreMap: ISurvivorStatusProps["confScoreMap"];
-    updatePredictionHandler: (index: number, prediction: ISurvivorPrediction) => Promise<void>;
+    minimumScoreAssignable: number;
+    confidenceScores: IConfidenceScore[];
+    updatePredictionHandler: (index: number, prediction: IPrediction) => void;
+    [key: string]: any;
 }
 
-export default function TeamSwitcher(props: ITeamSwitcherProps) {
-    const classes = useStyles();
-    const { leftTeam, rightTeam, index, updatePredictionHandler, confScoreMap, prediction } = props;
-    const [team, setTeam] = useState(props.prediction.team);
-    const [mom, setMom] = useState(props.prediction.mom);
-    const [confidence, setConfidence] = useState(props.prediction.confidence);
-    const [confidenceCache, setConfidenceCache] = useState(props.prediction.confidence);
+export interface IPlayerOption {
+    team: string;
+    player: string
+};
 
-    useEffect(() => {
-        setTeam(prediction.team);
-        setMom(prediction.mom);
-        setConfidence(prediction.confidence);
-        setConfidenceCache(prediction.confidence);
-    }, [prediction]);
+function TeamSwitcher(props: ITeamSwitcherProps) {
+    const classes = useStyles();
+    const {
+        updatePredictionHandler,
+        minimumScoreAssignable,
+        tournament,
+        confidenceScores,
+        userMatch: { match: { left, right, start, completed: matchCompleted, mom: matchMom, winner, end }, prediction },
+        index
+    } = props;
+    const [team, setTeam] = useState(prediction.team);
+    const [mom, setMom] = useState(prediction.mom);
+    const [confidence, setConfidence] = useState(prediction.confidence);
+    const [cache, setCache] = useState(prediction.confidence);
 
     useEffect(() => {
         updatePredictionHandler(index, { team, mom, confidence });
@@ -78,132 +74,112 @@ export default function TeamSwitcher(props: ITeamSwitcherProps) {
         return currentTeam === team;
     }
 
-    const minimumScoreAssignable = min(
-        map(
-            filter(confScoreMap, ({ score, remaining }) => remaining !== 0),
-            "score")
-    ) || 20;
     const switchTeam = (newTeam: string) => {
         if (team && isTeamSelected(newTeam)) {
             setTeam("");
             setMom("");
             setConfidence(0);
-            setConfidenceCache(0);
+            setCache(0);
         } else {
             setTeam(newTeam);
-            if (confidenceCache === 0) {
+            if (confidence === 0) {
                 setConfidence(minimumScoreAssignable);
-                setConfidenceCache(minimumScoreAssignable);
+                setCache(minimumScoreAssignable);
             }
         }
     }
-    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => switchTeam(name);
-    const _momHandler = (e: object, value: string | null) => setMom(value || "");
-    const _confidenceCacheHandler = (e: object, newValue: number | number[]) => {
-        const currUtilization = find(confScoreMap, { score: newValue as number })?.remaining || 0;
+    const _onCacheChange = (e: object, newValue: number | number[]) => {
+        const currUtilization = find(confidenceScores, { score: newValue as number })?.remaining || 0;
         if (currUtilization > 0) {
-            setConfidenceCache(newValue as number);
+            setCache(newValue as number);
         }
     };
-    const _confidenceHandler = (e: object, newValue: number | number[]) => {
-        setConfidence(confidenceCache);
-    };
+    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => switchTeam(name);
+    const _momHandler = (e: object, value: IPlayerOption | null) => setMom(value?.player || "");
+    const _confidenceHandler = (e: object, newValue: number | number[]) => setConfidence(cache);
+
+    const _timeRemainingRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
+        if (matchCompleted || completed) return `Winner: ${winner} Man of the match: ${matchMom}`;
+        return `${days} days, ${hours} hours, ${minutes} minutes`;
+    }
+
+    const startDate = new Date(start);
+    const formattedMom = { team, player: mom };
 
     return (
-        <Paper className={classes.rootPaper} variant="outlined">
-            <Grid container spacing={2}>
-                <Grid item container spacing={2} justify="center" alignItems="center">
-                    <Grid item xs={6} md>
-                        <Card
-                            className={clsx(classes.card, isTeamSelected(leftTeam.name) && classes.cardSelected)}
-                            onClick={_switchTeamHandler(leftTeam.name)}
-                            raised={isTeamSelected(leftTeam.name)}
-                        >
-                            <div className={classes.cardDetails}>
-                                <CardContent>
-                                    <Typography component="h2" variant="h5">
-                                        {leftTeam.name}
-                                    </Typography>
-                                    <Typography variant="subtitle1" paragraph>
-                                        {leftTeam.description}
-                                    </Typography>
-                                </CardContent>
-                            </div>
-                            {/* <Hidden xsDown> add team logos here
+        <Card className={classes.rootPaper} variant="outlined">
+            <CardHeader
+                title={
+                    <Box
+                        fontWeight="fontWeightBold"
+                        fontSize="h4.fontSize"
+                    >
+                        {`Match #${index + 1}`}
+                    </Box>
+                }
+                subheader={
+                    <>
+                        <div>{`${startDate.toDateString()}`}</div>
+                        <Countdown date={startDate} renderer={_timeRemainingRenderer} />
+                    </>
+                }
+            />
+            <CardContent>
+                <Grid container spacing={2}>
+                    <Grid item container spacing={2} justify="center" alignItems="center">
+                        <Grid item xs={6} md>
+                            <Card
+                                className={clsx(classes.card, isTeamSelected(left) && classes.cardSelected)}
+                                onClick={_switchTeamHandler(left)}
+                                raised={isTeamSelected(left)}
+                            >
+                                <div className={classes.cardDetails}>
+                                    <CardContent>
+                                        <Typography component="h2" variant="h5">
+                                            {left}
+                                        </Typography>
+                                    </CardContent>
+                                </div>
+                                {/* <Hidden xsDown> add team logos here
                                 <CardMedia className={classes.cardMedia} image={post.image} title={post.imgText} />
                             </Hidden> */}
-                        </Card>
-                    </Grid>
-                    <Grid item xs={6} md>
-                        <Card
-                            className={clsx(classes.card, isTeamSelected(rightTeam.name) && classes.cardSelected)}
-                            onClick={_switchTeamHandler(rightTeam.name)}
-                            raised={isTeamSelected(rightTeam.name)}
-                        >
-                            <div className={classes.cardDetails}>
-                                <CardContent>
-                                    <Typography component="h2" variant="h5">
-                                        {rightTeam.name}
-                                    </Typography>
-                                    <Typography variant="subtitle1" paragraph>
-                                        {rightTeam.description}
-                                    </Typography>
-                                </CardContent>
-                            </div>
-                            {/* <Hidden xsDown> add team logos here
+                            </Card>
+                        </Grid>
+                        <Grid item xs={6} md>
+                            <Card
+                                className={clsx(classes.card, isTeamSelected(right) && classes.cardSelected)}
+                                onClick={_switchTeamHandler(right)}
+                                raised={isTeamSelected(right)}
+                            >
+                                <div className={classes.cardDetails}>
+                                    <CardContent>
+                                        <Typography component="h2" variant="h5">
+                                            {right}
+                                        </Typography>
+                                    </CardContent>
+                                </div>
+                                {/* <Hidden xsDown> add team logos here
                                 <CardMedia className={classes.cardMedia} image={post.image} title={post.imgText} />
                             </Hidden> */}
-                        </Card>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <PlayerAutocomplete
+                                value={formattedMom}
+                                tournament={tournament}
+                                leftTeam={left}
+                                rightTeam={right}
+                                disabled={!team}
+                                changeHandler={_momHandler}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Autocomplete
-                            // TODO remove hardcode
-                            options={[
-                                "Virat Kohli",
-                                "AB de Villiers",
-                                "Devdutt Padikkal",
-                                "Gurkeerat Singh",
-                                "Aaron Finch",
-                                "Shahbaz Ahamad",
-                                "Joshua Philippe",
-                                "Pathiv Patel",
-                                "Pawan Negi",
-                                "Shivam Dube",
-                                "Moeen Ali",
-                                "Isuru Udana",
-                                "Pavan Deshpande",
-                                "Christopher Morris",
-                                "Kane Richardson",
-                                "Dale Steyn",
-                                "Mohammaed Siraj",
-                                "Navdeep Saini",
-                                "Umesh Yadav",
-                                "Washington Sundar",
-                                "Yuzvendra Chahal"
-                            ]}
-                            value={mom}
-                            disabled={!team}
-                            onChange={_momHandler}
-                            renderInput={params => (
-                                <TextField
-                                    {...params}
-                                    label="Man of the Match"
-                                    variant="outlined"
-                                    placeholder="Man of the Match"
-                                    fullWidth
-                                />
-                            )}
-                        />
-                    </Grid>
-                </Grid>
-                <Grid item container alignItems="flex-start">
-                    <Grid item xs={12} md={8}>
+                    <Grid item container alignItems="flex-start">
                         <ConfidenceSlider
-                            value={confidenceCache}
+                            value={cache}
                             disabled={!team}
-                            onChange={_confidenceCacheHandler}
+                            onChange={_onCacheChange}
                             onChangeCommitted={_confidenceHandler}
-                            className={classes.slider}
                             aria-labelledby="discrete-slider"
                             valueLabelDisplay="auto"
                             step={20}
@@ -212,16 +188,10 @@ export default function TeamSwitcher(props: ITeamSwitcherProps) {
                             max={100}
                         />
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                        <Box
-                            fontWeight="fontWeightBold"
-                            fontSize="h6.fontSize"
-                        >
-                            {`Confidence ${confidenceCache}`} %
-                        </Box>
-                    </Grid>
                 </Grid>
-            </Grid>
-        </Paper>
+            </CardContent>
+        </Card>
     );
 }
+
+export default React.memo(TeamSwitcher);

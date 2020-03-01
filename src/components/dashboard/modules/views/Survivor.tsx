@@ -4,8 +4,8 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Intro from '../components/Intro';
 import { URL } from '../../../../Routes';
-import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get } from 'lodash-es';
-import { ISurvivorPrediction, IGameSchedule } from '../../../../api/LeagueAPI';
+import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times, constant } from 'lodash-es';
+import { IPrediction, IMatch } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import TeamSwitcher from '../components/TeamSwitcher';
@@ -75,6 +75,16 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+export interface IConfidenceScore {
+    score: number;
+    remaining: number;
+}
+
+export interface IUserMatch {
+    match: IMatch
+    prediction: IPrediction;
+}
+
 interface ISurvivorProps {
     isAuthenticated: boolean;
     userHasAuthenticated: (isAuthenticated: boolean) => void;
@@ -86,21 +96,20 @@ interface ISurvivorProps {
     };
 }
 
-export default function IPL(props: ISurvivorProps) {
+export default function Survivor(props: ISurvivorProps) {
     if (!props.isAuthenticated) props.history.push(URL.HOME);
     const classes = useStyles();
     const dispatch = useDispatch();
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
-    const [predictions, setPredictions] = useState([] as ISurvivorPrediction[]);
-    const [schedule, setSchedule] = useState([] as IGameSchedule[]);
-    const [userSchedule, setUserSchdeule] = useState([] as any[]);
-    const [confScoreMap, setConfScoreMap] = useState([
+    const [schedule, setSchedule] = useState([] as IMatch[]);
+    const [userMatches, setUserMatches] = useState([] as IUserMatch[]);
+    const [confidenceScores, setConfidenceScores] = useState([
         { score: 20, remaining: 0 },
         { score: 40, remaining: 0 },
         { score: 60, remaining: 0 },
         { score: 80, remaining: 0 },
         { score: 100, remaining: 0 },
-    ]);
+    ] as IConfidenceScore[]);
 
     const tournament = props.match.params.game;
     const leagueName = props.match.params.league;
@@ -108,8 +117,8 @@ export default function IPL(props: ISurvivorProps) {
 
     // constructor and destructor
     useEffect(() => {
-        const init = async () => {
-            dispatch({ type: LEAGUE_ACTIONS.GET_IPL_SCHEDULE, tournament });
+        const init = () => {
+            dispatch({ type: LEAGUE_ACTIONS.GET_SCHEDULE, tournament });
             dispatch({ type: LEAGUE_ACTIONS.GET_SURVIVOR_PREDICTION, tournament, leagueName });
         }
         init();
@@ -119,11 +128,11 @@ export default function IPL(props: ISurvivorProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [leagueName, tournament]);
 
-    // schedule watcher
+    // schedule store watcher
     useEffect(() => {
         const updateSchedule = async () => {
             const response = await store.schedule;
-            response.result && setSchedule(response.result.Item);
+            response.result && setSchedule(response.result.Item.schedule);
         }
         updateSchedule();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,44 +142,26 @@ export default function IPL(props: ISurvivorProps) {
     useEffect(() => {
         const updatePredictions = async () => {
             const response = await store.survivorPrediction;
-            if (!isEmpty(response)) {
-                setPredictions(response.result.Item.predictions);
-            } else {
-                setPredictions([]);
-            }
-        }
-        updatePredictions();
-    }, [store.survivorPrediction]);
-
-    useEffect(() => {
-        const updateUserSchedule = () => {
-            const currUserSchedule = zipWith(schedule, predictions, (match: IGameSchedule, prediction: ISurvivorPrediction) => {
-                return {
-                    startTime: match[0],
-                    left: match[1],
-                    right: match[2],
-                    prediction: prediction || { team: "", mom: "", confidence: 0 },
-                };
-            });
-
-            setUserSchdeule(currUserSchedule);
+            const predictions = get(response, "result.Item.predictions", times(schedule.length, constant({ team: "", mom: "", confidence: 0 })));
+            const currUserMatches = zipWith(schedule, predictions, (match: IMatch, prediction: IPrediction) => ({ match, prediction }));
+            updateUserMatches(currUserMatches);
         }
 
-        if(!isEmpty(schedule)) {
-            updateUserSchedule();
+        if (!isEmpty(schedule)) {
+            updatePredictions();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [predictions, schedule]);
+    }, [schedule, store.survivorPrediction]);
 
-    useEffect(() => {
+    const updateUserMatches = (userSchedule: IUserMatch[]) => {
         const maxUses = ceil(userSchedule.length / 5);
-        const currentUses = omit(groupBy(userSchedule, (schedule) => schedule.prediction.confidence), [0]);
-        const currentConfScores = map(confScoreMap, (currScore) => {
+        const currentUses = omit(groupBy(userSchedule, (s) => s.prediction.confidence), [0]);
+        const currConfidenceScores = map(confidenceScores, (currScore) => {
             return { score: currScore.score, remaining: maxUses - get(currentUses, currScore.score, []).length };
         });
-        setConfScoreMap(currentConfScores);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userSchedule]);
+        setUserMatches(userSchedule);
+        setConfidenceScores(currConfidenceScores);
+    };
 
     const links = {
         header: {
@@ -182,15 +173,39 @@ export default function IPL(props: ISurvivorProps) {
         }
     };
 
-    const updatePredictionHandler = async (index: number, prediction: ISurvivorPrediction) => {
-        const predictions = map(userSchedule, "prediction");
-        set(predictions, index, prediction);
-        setPredictions(predictions);
+    const updatePredictionHandler = (index: number, prediction: IPrediction) => {
+        const currUserSchedule = cloneDeep(userMatches);
+        set(currUserSchedule, [index, "prediction"], prediction);
+        updateUserMatches(currUserSchedule);
     }
 
-    const savePredictions = () => {
-        const payload = { tournament, leagueName, predictions };
+    const _savePredictions = () => {
+        const payload = { tournament, leagueName, predictions: map(userMatches, "prediction") };
         dispatch({ type: LEAGUE_ACTIONS.SET_SURVIVOR_PREDICTION, payload });
+    }
+
+    const minimumScoreAssignable = min(
+        map(
+            filter(confidenceScores, ({ score, remaining }) => remaining !== 0),
+            "score")
+    ) || 0;
+
+    const getTeamSwitchers = () => {
+        return (
+            !isEmpty(userMatches) ?
+                map(userMatches, (userMatch, index) => (
+                    <Grid item xs={12} key={`${userMatch.match.left}vs${userMatch.match.right}`}>
+                        <TeamSwitcher
+                            userMatch={userMatch}
+                            tournament={tournament}
+                            index={index}
+                            confidenceScores={confidenceScores}
+                            minimumScoreAssignable={minimumScoreAssignable}
+                            updatePredictionHandler={updatePredictionHandler}
+                        />
+                    </Grid>
+                )) : <Grid item xs={12}>Loading</Grid>
+        );
     }
 
     return (
@@ -200,37 +215,15 @@ export default function IPL(props: ISurvivorProps) {
                     <Intro post={links.header} />
                     <SurvivorStatusBar
                         classes={classes}
-                        confScoreMap={confScoreMap}
-                        save={savePredictions}
+                        confidenceScores={confidenceScores}
+                        save={_savePredictions}
                     />
                     <Grid container spacing={4}>
                         <Grid item xs={12}>
                             <Paper elevation={3} className={classes.leaguesSection}>
                                 <Title title="Predictions" />
                                 <Grid container spacing={4}>
-                                    {
-                                        !isEmpty(userSchedule) ?
-                                            map(userSchedule, (match, index) => (
-                                                <Grid item xs={12} key={index}>
-                                                    <TeamSwitcher
-                                                        leftTeam={{
-                                                            name: match.left,
-                                                            description: "",
-                                                            owner: ""
-                                                        }}
-                                                        rightTeam={{
-                                                            name: match.right,
-                                                            description: "",
-                                                            owner: ""
-                                                        }}
-                                                        prediction={match.prediction}
-                                                        index={index}
-                                                        updatePredictionHandler={updatePredictionHandler}
-                                                        confScoreMap={confScoreMap}
-                                                    />
-                                                </Grid>
-                                            )) : <Grid item xs={12}>You don't own any Leagues</Grid>
-                                    }
+                                    {getTeamSwitchers()}
                                 </Grid>
                             </Paper>
                         </Grid>
@@ -239,7 +232,7 @@ export default function IPL(props: ISurvivorProps) {
                                 color="primary"
                                 aria-label="save"
                                 variant="extended"
-                                onClick={savePredictions}
+                                onClick={_savePredictions}
                             >
                                 <SaveIcon className={classes.extendedIcon} />
                                 Save

@@ -1,7 +1,7 @@
 import Slider from '@material-ui/core/Slider';
 import { withStyles } from '@material-ui/core/styles';
 
-export const ConfidenceSlider = withStyles(theme => ({
+const ConfidenceSlider = withStyles(theme => ({
     // root: {
     //   // color: theme.palette.primary.light,
     //   // height: 8,
@@ -30,3 +30,5 @@ export const ConfidenceSlider = withStyles(theme => ({
     //   borderRadius: 4,
     // },
   }))(Slider);
+
+  export default ConfidenceSlider;

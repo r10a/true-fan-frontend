@@ -119,7 +119,6 @@ export default function IPL(props: IDashboardProps) {
     const validate = () => {
         const errors = cloneDeep(helperTexts);
         check(isEmpty(formFields.leagueName), "leagueName", "Required", errors);
-        console.log(!(/^[A-Za-z0-9-]*$/.test(formFields.leagueName.trim())), formFields.leagueName.trim().length > 20);
         check(!(/^[A-Za-z0-9-]*$/.test(formFields.leagueName.trim())) || formFields.leagueName.trim().length > 20
         , "leagueName", "Only less than 20 characters, numbers, and dashes allowed", errors);
 
@@ -142,7 +141,6 @@ export default function IPL(props: IDashboardProps) {
                     dispatch({ type: LEAGUE_ACTIONS.GET_USER_LEAGUES });
                 })
                 .catch((err) => {
-                    console.log(err);
                     const errors = cloneDeep(helperTexts);
                     if (err.response.data.error.message === "Already Exists") {
                         check(true, "leagueName", "League already exists! Please choose a different name.", errors);
