@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSnackbar } from 'notistack';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Intro from '../components/Intro';
 import { URL } from '../../../../Routes';
 import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times, constant } from 'lodash-es';
-import { IPrediction, IMatch } from '../../../../api/LeagueAPI';
+import LeagueAPI, { IPrediction, IMatch } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import TeamSwitcher from '../components/TeamSwitcher';
@@ -100,6 +101,7 @@ export default function Survivor(props: ISurvivorProps) {
     if (!props.isAuthenticated) props.history.push(URL.HOME);
     const classes = useStyles();
     const dispatch = useDispatch();
+    const { enqueueSnackbar } = useSnackbar();
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
     const [schedule, setSchedule] = useState([] as IMatch[]);
     const [userMatches, setUserMatches] = useState([] as IUserMatch[]);
@@ -181,7 +183,15 @@ export default function Survivor(props: ISurvivorProps) {
 
     const _savePredictions = () => {
         const payload = { tournament, leagueName, predictions: map(userMatches, "prediction") };
-        dispatch({ type: LEAGUE_ACTIONS.SET_SURVIVOR_PREDICTION, payload });
+        LeagueAPI.setSurvivorPrediction(payload).then(() => {
+            enqueueSnackbar("Changed Saved", {
+                variant: 'success'
+            })
+        }).catch(() => {
+            enqueueSnackbar("Oops! Something went wrong", {
+                variant: 'error'
+            })
+        });
     }
 
     const minimumScoreAssignable = min(

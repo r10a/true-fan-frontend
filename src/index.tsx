@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { ThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider, makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Amplify from 'aws-amplify';
 import inboundReducers from './reducers';
@@ -13,9 +13,17 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import theme from './theme';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+// import config from './config';
 import DateFnsUtils from '@date-io/date-fns';
+import { SnackbarProvider } from 'notistack';
 
 const store = createStore(inboundReducers, applyMiddleware(thunk));
+
+const snackBarStyles = makeStyles({
+    root: {
+        top: theme.spacing(16)
+    }
+});
 
 const Root: React.FC<{}> = (props) => {
     return (
@@ -23,8 +31,17 @@ const Root: React.FC<{}> = (props) => {
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <Router>
                     <ThemeProvider theme={theme}>
-                        <CssBaseline />
-                        <App />
+                        <SnackbarProvider
+                            dense
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'center',
+                            }}
+                            classes={snackBarStyles()}
+                        >
+                            <CssBaseline />
+                            <App />
+                        </SnackbarProvider>
                     </ThemeProvider>
                 </Router>
             </MuiPickersUtilsProvider>

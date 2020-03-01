@@ -1,10 +1,11 @@
+import React, { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
 import { Fab, Paper } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import SaveIcon from '@material-ui/icons/Save';
 import { cloneDeep, isEmpty, map, set } from 'lodash-es';
-import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import LeagueAPI, { IMatch } from '../../../../api/LeagueAPI';
 import { reducers } from '../../../../reducers';
@@ -88,6 +89,7 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
     if (!props.isAuthenticated || !props.admin) props.history.push(URL.HOME);
     const classes = useStyles();
     const dispatch = useDispatch();
+    const { enqueueSnackbar } = useSnackbar();
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
     const [schedule, setSchedule] = useState([] as IMatch[]);
 
@@ -137,7 +139,15 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
     }
 
     const _saveSchedule = () => {
-        LeagueAPI.updateSchedule(tournament, schedule);
+        LeagueAPI.updateSchedule(tournament, schedule).then(() => {
+            enqueueSnackbar("Changed Saved", {
+                variant: 'success'
+            })
+        }).catch(() => {
+            enqueueSnackbar("Oops! Something went wrong", {
+                variant: 'error'
+            })
+        });
     }
 
     const getMatchEditors = () => {
