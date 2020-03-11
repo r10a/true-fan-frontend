@@ -1,4 +1,3 @@
-import { GAME_TYPE } from "../components/dashboard/Dashboard";
 import { API, Auth } from "aws-amplify";
 
 interface IAPIQueryResult {
@@ -10,7 +9,6 @@ export interface ICreateLeaguePayload {
     userId: string;
     leagueName: string;
     description: string;
-    leagueType: GAME_TYPE;
     tournament: string;
     created?: string;
 }
@@ -85,7 +83,6 @@ export interface ISurvivorPredictionResult {
 }
 
 const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues> => {
-    console.log("payload", payload);
     const user = await Auth.currentAuthenticatedUser();
     return API.post("tru-fan", "/create-league", {
         body: {
@@ -102,14 +99,14 @@ const getUserLeagues = async (): Promise<Array<ICreateLeaguePayload>> => {
     });
 }
 
-const getLeagueMembers = async (leagueName: string): Promise<IUserLeagueMembers> => {
-    return API.get("tru-fan", `/get-league-members/${leagueName}`, {
+const getLeagueMembers = async (tournament: string, leagueName: string): Promise<IUserLeagueMembers> => {
+    return API.get("tru-fan", `/get-league-members/${tournament}/${leagueName}`, {
         headers: {}
     });
 }
 
-const setLeagueMembers = async (leagueName: string, members: string[]): Promise<IUserLeagueMembers> => {
-    return API.post("tru-fan", `/set-league-members/${leagueName}`, {
+const setLeagueMembers = async (tournament: string, leagueName: string, members: string[]): Promise<IUserLeagueMembers> => {
+    return API.post("tru-fan", `/set-league-members/${tournament}/${leagueName}`, {
         body: { members }
     });
 }
@@ -159,5 +156,5 @@ export default {
     updateSchedule,
     getSurvivorPrediction,
     setSurvivorPrediction,
-    getPlayers
+    getPlayers,
 };

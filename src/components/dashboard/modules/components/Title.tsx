@@ -12,11 +12,9 @@ const useStyles = makeStyles(theme => ({
 function Title(props: { title: string }) {
     const classes = useStyles();
     return (
-        <React.Fragment>
-            <Typography component="h2" variant="h6" color="primary" gutterBottom className={classes.title}>
-                {props.title}
-            </Typography>
-        </React.Fragment>
+        <Typography component="h2" variant="h5" color="primary" gutterBottom className={classes.title}>
+            {props.title}
+        </Typography>
     )
 }
 

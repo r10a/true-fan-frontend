@@ -18,6 +18,7 @@ import { find } from 'lodash-es';
 const useStyles = makeStyles({
     card: {
         display: 'flex',
+        cursor: 'pointer'
     },
     cardDetails: {
         flex: 1,
@@ -47,7 +48,6 @@ interface ITeamSwitcherProps {
     minimumScoreAssignable: number;
     confidenceScores: IConfidenceScore[];
     updatePredictionHandler: (index: number, prediction: IPrediction) => void;
-    [key: string]: any;
 }
 
 export interface IPlayerOption {

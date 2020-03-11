@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import clsx from 'clsx';
 import Link from '@material-ui/core/Link';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
@@ -7,16 +7,12 @@ import Toolbar, { styles as toolbarStyles } from '../components/Toolbar';
 import {
   IconButton, MenuItem, Popper, Grow, Paper, ClickAwayListener,
   MenuList, Drawer, Divider, List, ListItem,
-  ListItemIcon, ListItemText, Collapse, makeStyles
+  ListItemIcon, ListItemText, makeStyles
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import SettingsIcon from '@material-ui/icons/Settings';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import SportsCricketIcon from '@material-ui/icons/SportsCricket';
-import SportsSoccerIcon from '@material-ui/icons/SportsSoccer';
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import EmojiEventsIcon from '@material-ui/icons/EmojiEvents';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Auth } from 'aws-amplify';
 import { URL } from '../../../../Routes';
@@ -115,9 +111,8 @@ interface IAppAppBarProps {
 export default function AppAppBar(props: IAppAppBarProps) {
   const classes = useStyles();
   const history = useHistory();
-  const [isSettingOpen, openSettings] = React.useState(false);
-  const [isTournamentsOpen, openTournaments] = useState(false);
-  const anchorRef = React.useRef<HTMLButtonElement>(null);
+  const [isSettingOpen, openSettings] = useState(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {
     openSettings(prevOpen => !prevOpen);
@@ -248,32 +243,15 @@ export default function AppAppBar(props: IAppAppBarProps) {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button onClick={() => openTournaments(!isTournamentsOpen)}>
+          <ListItem button onClick={() => {
+            history.push(URL.DASHBOARD.IPL);
+            props.toggleSidebar();
+          }}>
             <ListItemIcon>
-              <EmojiEventsIcon />
+              <SportsCricketIcon />
             </ListItemIcon>
-            <ListItemText primary="Tournaments" />
-            {isTournamentsOpen ? <ExpandLess /> : <ExpandMore />}
+            <ListItemText primary="IPL" />
           </ListItem>
-          <Collapse in={isTournamentsOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => {
-                history.push(URL.DASHBOARD.IPL);
-                props.toggleSidebar();
-              }}>
-                <ListItemIcon>
-                  <SportsCricketIcon />
-                </ListItemIcon>
-                <ListItemText primary="IPL" />
-              </ListItem>
-              <ListItem button className={classes.nested}>
-                <ListItemIcon>
-                  <SportsSoccerIcon />
-                </ListItemIcon>
-                <ListItemText primary="EURO" />
-              </ListItem>
-            </List>
-          </Collapse>
         </List>
       </Drawer>
       <div className={classes.placeholder} />

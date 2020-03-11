@@ -70,6 +70,8 @@ interface IManageLeagueDialogProps {
 
 export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
 
+    const { league: { tournament, leagueName } } = props;
+
     const [members, setMembers] = useState([] as string[]);
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
 
@@ -96,13 +98,13 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
         setMembers(chipMembers);
     }
     const removeMember = (index: number) => {
+        if (index === 0) return;
         chipMembers.splice(index, 1);
         setMembers(chipMembers);
     }
 
     const saveChanges = () => {
-        console.log(members);
-        LeagueAPI.setLeagueMembers(props.league.leagueName, members)
+        LeagueAPI.setLeagueMembers(tournament, leagueName, members)
             .then(response => {
                 setMembers(map(get(response, "result.Items", {}), "userId"));
                 props.handleClose();

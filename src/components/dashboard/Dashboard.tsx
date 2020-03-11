@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { URL } from '../../Routes';
+import ScoreBoard from './modules/components/ScoreBoard';
+import { map } from 'lodash-es';
+import { Container, Grid, Paper } from '@material-ui/core';
+import Title from './modules/components/Title';
+import DashboardAPI, { ITournament } from '../../api/DashboardAPI';
 
 interface IDashboardProps {
     isAuthenticated: boolean;
@@ -11,68 +16,60 @@ interface IDashboardProps {
     history: any;
 }
 
-export enum GAME_TYPE {
-    SURVIVOR = "SURVIVOR",
-    CONFIDENCE = "CONFIDENCE"
-}
-
-const drawerWidth = 240;
-
 const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex',
+    mainGrid: {
+        marginTop: theme.spacing(3),
     },
-    toolbar: {
-        paddingRight: 24, // keep right padding when drawer closed
-    },
-    appBar: {
-        zIndex: theme.zIndex.drawer + 1,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    appBarShift: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
-    title: {
-        flexGrow: 1,
-    },
-    appBarSpacer: theme.mixins.toolbar,
-    content: {
-        flexGrow: 1,
-        height: '100vh',
-        overflow: 'auto',
-    },
-    container: {
-        paddingTop: theme.spacing(4),
-        paddingBottom: theme.spacing(4),
-    },
-    paper: {
+    tournamentScores: {
         padding: theme.spacing(2),
-        display: 'flex',
-        overflow: 'auto',
-        flexDirection: 'column',
-    },
-    fixedHeight: {
-        height: 240,
-    },
+    }
 }));
 
+const CURRENT_TOURNAMENTS = ['IPL-2020'];
 
 export default function Dashboard(props: IDashboardProps) {
     if (!props.isAuthenticated) props.history.push(URL.HOME);
     if (props.admin) props.history.push(URL.DASHBOARD.SCHEDULE_EDITOR.replace(":game", "IPL-2020"));
     const classes = useStyles();
 
+    const [scores, setTournamentScores] = useState({} as ITournament[]);
+
+    // constructor and destructor
+    useEffect(() => {
+        function getScores() {
+            const scorePromises = map(CURRENT_TOURNAMENTS, (tournament) => DashboardAPI.getScores(tournament));
+
+            Promise.all(scorePromises).then((results) => {
+                const tournamentScores = map(results, "result.Item");
+                setTournamentScores(tournamentScores);
+            });
+        }
+        getScores();
+        return function cleanup() {
+            // dispatch({ type: LEAGUE_ACTIONS.RESET });
+        }
+    }, []);
+
     return (
-        <div className={classes.root}>
-        </div>
+        <Container maxWidth="lg" className={classes.mainGrid} >
+            {
+                map(scores, (tScore) => (
+                    <Paper key={tScore.tournament} elevation={3} className={classes.tournamentScores}>
+                        <Title title={tScore.tournament} />
+                        <Grid container spacing={3} justify="center">
+                            {
+                                map(tScore.leagues, (leagueScore) => (
+                                    <ScoreBoard
+                                        key={leagueScore.leagueName}
+                                        score={leagueScore}
+                                    />
+                                ))
+                            }
+                        </Grid>
+                    </Paper>
+                ))
+            }
+        </Container>
     );
 
 }

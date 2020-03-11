@@ -9,8 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { map, isEmpty } from 'lodash-es';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
-import { useMediaQuery, makeStyles, useTheme, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { GAME_TYPE } from '../../Dashboard';
+import { useMediaQuery, useTheme } from '@material-ui/core';
 
 interface ICreateDialogProps<T> {
   open: boolean;
@@ -30,20 +29,8 @@ const Transition = React.forwardRef<unknown, TransitionProps>(function Transitio
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const useStyles = makeStyles(theme => ({
-  mainGrid: {
-    marginTop: theme.spacing(3),
-  },
-  radioGroup: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-around"
-  }
-}));
-
 export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
 
-  const classes = useStyles();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   return (
@@ -55,33 +42,18 @@ export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
             To Create a new private {props.type} league, please enter the following information.
           </DialogContentText>
           {map(props.fields, ({ id, label }, index) => (
-            id === "leagueType" ?
-              <RadioGroup
-                key={id}
-                aria-label={id}
-                name={id}
-                className={classes.radioGroup}
-                // @ts-ignore
-                value={props.formFields.leagueType}
-                // @ts-ignore
-                onChange={e => props.setFormField({ ...props.formFields, [id]: GAME_TYPE[e.target.value] })}
-              >
-                <FormControlLabel value={"SURVIVOR"} control={<Radio color="primary" />} label="Survivor" />
-                <FormControlLabel value={"CONFIDENCE"} control={<Radio color="primary" />} label="Confidence" />
-              </RadioGroup>
-              :
-              <TextField
-                key={id}
-                autoFocus={index === 0}
-                required={index === 0}
-                margin="dense"
-                id={id}
-                label={label}
-                onChange={e => props.setFormField({ ...props.formFields, [id]: e.target.value })}
-                helperText={props.helperTexts[id]}
-                error={!isEmpty(props.helperTexts[id])}
-                fullWidth
-              />
+            <TextField
+              key={id}
+              autoFocus={index === 0}
+              required={index === 0}
+              margin="dense"
+              id={id}
+              label={label}
+              onChange={e => props.setFormField({ ...props.formFields, [id]: e.target.value })}
+              helperText={props.helperTexts[id]}
+              error={!isEmpty(props.helperTexts[id])}
+              fullWidth
+            />
           ))}
         </DialogContent>
         <DialogActions>

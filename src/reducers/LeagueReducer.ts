@@ -35,7 +35,7 @@ export default (state: ILeagueState = initialState, action: any) => {
         case LEAGUE_ACTIONS.GET_LEAGUE_MEMBERS: {
             return {
                 ...state,
-                members: LeagueAPI.getLeagueMembers(action.leagueName),
+                members: LeagueAPI.getLeagueMembers(action.tournament, action.leagueName),
             }
         }
         case LEAGUE_ACTIONS.GET_SCHEDULE: {

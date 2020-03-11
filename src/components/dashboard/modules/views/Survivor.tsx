@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Intro from '../components/Intro';
 import { URL } from '../../../../Routes';
-import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times, constant } from 'lodash-es';
+import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times } from 'lodash-es';
 import LeagueAPI, { IPrediction, IMatch } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
@@ -144,8 +144,27 @@ export default function Survivor(props: ISurvivorProps) {
     useEffect(() => {
         const updatePredictions = async () => {
             const response = await store.survivorPrediction;
-            const predictions = get(response, "result.Item.predictions", times(schedule.length, constant({ team: "", mom: "", confidence: 0 })));
-            const currUserMatches = zipWith(schedule, predictions, (match: IMatch, prediction: IPrediction) => ({ match, prediction }));
+            const predictions = get(response, "result.Item.predictions", times(schedule.length, () => ({ team: "", mom: "", confidence: 0 })));
+
+            const maxUses = ceil(schedule.length / 5);
+            const currentUses = omit(groupBy(predictions, (p) => p.confidence), [0]);
+            const currConfidenceScores = map(confidenceScores, (currScore) => {
+                return { score: currScore.score, remaining: maxUses - get(currentUses, currScore.score, []).length };
+            });
+
+            const currUserMatches = zipWith(schedule, predictions, (match: IMatch, prediction: IPrediction) => {
+                // auto assign for skipped matches
+                if (isEmpty(prediction.team) && match.completed) {
+                    const minimumScoreAssignable = min(
+                        map(
+                            filter(currConfidenceScores, ({ score, remaining }) => remaining !== 0),
+                            "score")
+                    ) || 0;
+                    currConfidenceScores[(minimumScoreAssignable / 20) - 1].remaining -= 1;
+                    set(prediction, "confidence", minimumScoreAssignable);
+                }
+                return { match, prediction }
+            });
             updateUserMatches(currUserMatches);
         }
 
@@ -194,7 +213,7 @@ export default function Survivor(props: ISurvivorProps) {
         return (
             !isEmpty(userMatches) ?
                 map(userMatches, (userMatch, index) => (
-                    <Grid item xs={12} key={`${userMatch.match.left}vs${userMatch.match.right}`}>
+                    <Grid item xs={12} key={`${userMatch.match.left}vs${userMatch.match.right}@${userMatch.match.start}`}>
                         <TeamSwitcher
                             userMatch={userMatch}
                             tournament={tournament}

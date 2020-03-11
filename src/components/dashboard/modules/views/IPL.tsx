@@ -11,7 +11,6 @@ import { check } from '../../../landing/modules/form/validation';
 import LeagueAPI, { ICreateLeaguePayload } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
-import { GAME_TYPE } from '../../Dashboard';
 import CardListItem from '../components/CardListItem';
 import { reducers } from '../../../../reducers';
 import { Paper } from '@material-ui/core';
@@ -53,11 +52,11 @@ export default function IPL(props: IDashboardProps) {
     const tournament = "IPL-2020"; // TODO: Refactor later
 
     const [formFields, setFormField] = useState({
-        leagueName: "", description: "", leagueType: GAME_TYPE.SURVIVOR
+        leagueName: "", description: ""
     });
 
     const [helperTexts, setHelperText] = useState({
-        leagueName: "", description: "", leagueType: ""
+        leagueName: "", description: ""
     });
 
 
@@ -148,7 +147,7 @@ export default function IPL(props: IDashboardProps) {
                     />
                     <Grid container spacing={4}>
                         <JumboButton
-                            title={tournament}
+                            title={`Create a league for ${tournament}`}
                             description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
                             image="https://source.unsplash.com/random"
                             imgText="main image description"
@@ -179,7 +178,7 @@ export default function IPL(props: IDashboardProps) {
                                                         onClick={() => navigateToLeague(league.leagueName)}
                                                         onOptionsClick={() => {
                                                             setSelectedLeague(league);
-                                                            dispatch({ type: LEAGUE_ACTIONS.GET_LEAGUE_MEMBERS, leagueName: league.leagueName });
+                                                            dispatch({ type: LEAGUE_ACTIONS.GET_LEAGUE_MEMBERS, tournament, leagueName: league.leagueName });
                                                             openManage(true);
                                                         }}
                                                     />
@@ -211,7 +210,7 @@ export default function IPL(props: IDashboardProps) {
                             </Paper>
                         </Grid>
                     </Grid>
-                    <CreateLeagueDialog<{ "leagueName": string; "description": string; "leagueType": GAME_TYPE; }>
+                    <CreateLeagueDialog<{ "leagueName": string; "description": string; }>
                         open={isCreateOpen}
                         fields={fields}
                         formFields={formFields}
