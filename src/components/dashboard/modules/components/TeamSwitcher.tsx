@@ -6,14 +6,16 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 import Countdown, { CountdownRenderProps } from 'react-countdown-now';
 import { IPrediction } from '../../../../api/LeagueAPI';
 import theme from '../../../../theme';
 import ConfidenceSlider from './ConfidenceSlider';
 import PlayerAutocomplete from './PlayerAutocomplete';
-import { CardHeader } from '@material-ui/core';
+import { CardHeader, IconButton } from '@material-ui/core';
 import { IUserMatch, IConfidenceScore } from '../views/Survivor';
-import { find } from 'lodash-es';
+import { find, noop } from 'lodash-es';
+import { subHours, differenceInMilliseconds } from 'date-fns';
 
 const useStyles = makeStyles({
     card: {
@@ -48,6 +50,7 @@ interface ITeamSwitcherProps {
     minimumScoreAssignable: number;
     confidenceScores: IConfidenceScore[];
     updatePredictionHandler: (index: number, prediction: IPrediction) => void;
+    save: () => void;
 }
 
 export interface IPlayerOption {
@@ -63,12 +66,40 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
         tournament,
         confidenceScores,
         userMatch: { match: { left, right, start, completed: matchCompleted, mom: matchMom, winner, end }, prediction },
-        index
+        index,
+        save
     } = props;
     const [team, setTeam] = useState(prediction.team);
     const [mom, setMom] = useState(prediction.mom);
     const [confidence, setConfidence] = useState(prediction.confidence);
     const [cache, setCache] = useState(prediction.confidence);
+
+    const timeout = differenceInMilliseconds(subHours(new Date(start), 1), new Date());
+    const [locked, setLocked] = useState(timeout < 0);
+    const disabled = matchCompleted || !team || locked;
+
+    useEffect(() => {
+        const startTimer = () => {
+            if (timeout < 0x7FFFFFFF && timeout > 0) {
+                return setTimeout(() => {
+                    if (!team) {
+                        setConfidence(minimumScoreAssignable);
+                        setCache(minimumScoreAssignable);
+                    }
+                    updatePredictionHandler(index, { team, mom, confidence: confidence || minimumScoreAssignable });
+                    setLocked(true);
+                    // setTimeout(save);
+                }, timeout);
+            } else {
+                return setTimeout(noop, 1);
+            }
+        };
+        const timerId = startTimer();
+        return function cleanUp() {
+            clearTimeout(timerId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [save]);
 
     useEffect(() => {
         updatePredictionHandler(index, { team, mom, confidence });
@@ -100,23 +131,31 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
             setCache(newValue as number);
         }
     };
-    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => !matchCompleted && switchTeam(name);
+    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => !matchCompleted && !locked && switchTeam(name);
     const _momHandler = (e: object, value: IPlayerOption | null) => !matchCompleted && setMom(value?.player || "");
     const _confidenceHandler = (e: object, newValue: number | number[]) => !matchCompleted && setConfidence(cache);
 
     const _timeRemainingRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
-        if (matchCompleted || completed) return (
-            <div>
-                <div>{`Winner: ${winner}`}</div>
-                <div>{`Man of the match: ${matchMom}`}</div>
-            </div>
-        );
+        if (matchCompleted && completed) {
+            return (
+                <div>
+                    <div>{`Winner: ${winner}`}</div>
+                    <div>{`Man of the match: ${matchMom}`}</div>
+                </div>
+            );
+        } else if (locked) {
+            return (
+                <div>
+                    <div>{`Match start in ${minutes} minute(s)`}</div>
+                    <div>{`Prediction locked in`}</div>
+                </div>
+            );
+        }
         return `${days} days, ${hours} hours, ${minutes} minutes`;
     }
 
     const startDate = new Date(start);
     const formattedMom = { team, player: mom };
-    const disabled = matchCompleted || !team;
 
     return (
         <Card
@@ -140,6 +179,12 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                             {!!confidence ? `Confidence ${confidence}%` : ""}
                         </Typography>
                     </>
+                }
+                action={
+                    locked &&
+                    <IconButton aria-label="unlock">
+                        <LockOpenIcon />
+                    </IconButton>
                 }
             />
             <CardContent>

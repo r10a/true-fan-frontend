@@ -15,7 +15,7 @@ import { Paper, Fab } from '@material-ui/core';
 import Title from '../components/Title';
 import SaveIcon from '@material-ui/icons/Save';
 import SurvivorStatusBar from '../components/SurvivorStatusBar';
-
+import { differenceInMilliseconds, subHours } from 'date-fns';
 
 const useStyles = makeStyles(theme => ({
     mainGrid: {
@@ -154,7 +154,7 @@ export default function Survivor(props: ISurvivorProps) {
 
             const currUserMatches = zipWith(schedule, predictions, (match: IMatch, prediction: IPrediction) => {
                 // auto assign for skipped matches
-                if (isEmpty(prediction.team) && match.completed) {
+                if (isEmpty(prediction.team) && (match.completed || differenceInMilliseconds(subHours(new Date(match.start), 1), new Date()) < 0)) {
                     const minimumScoreAssignable = min(
                         map(
                             filter(currConfidenceScores, ({ score, remaining }) => remaining !== 0),
@@ -221,6 +221,7 @@ export default function Survivor(props: ISurvivorProps) {
                             confidenceScores={confidenceScores}
                             minimumScoreAssignable={minimumScoreAssignable}
                             updatePredictionHandler={updatePredictionHandler}
+                            save={_savePredictions}
                         />
                     </Grid>
                 )) : <Grid item xs={12}>Loading</Grid>
