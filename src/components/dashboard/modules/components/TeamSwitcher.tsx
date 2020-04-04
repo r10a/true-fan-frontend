@@ -14,8 +14,8 @@ import ConfidenceSlider from './ConfidenceSlider';
 import PlayerAutocomplete from './PlayerAutocomplete';
 import { CardHeader, IconButton } from '@material-ui/core';
 import { IUserMatch, IConfidenceScore } from '../views/Survivor';
-import { find, noop } from 'lodash-es';
-import { subHours, differenceInMilliseconds } from 'date-fns';
+import { find } from 'lodash-es';
+import { subHours, differenceInMilliseconds, isBefore, differenceInMinutes, isAfter, isWithinInterval } from 'date-fns';
 
 const useStyles = makeStyles({
     card: {
@@ -50,13 +50,35 @@ interface ITeamSwitcherProps {
     minimumScoreAssignable: number;
     confidenceScores: IConfidenceScore[];
     updatePredictionHandler: (index: number, prediction: IPrediction) => void;
-    save: () => void;
+    isEditMode: boolean;
+    save?: () => void;
+    edit?: (index: number, matchStatus: MatchStatus) => void;
 }
 
 export interface IPlayerOption {
     team: string;
     player: string
 };
+
+export enum MatchStatus {
+    NOT_STARTED, QUARTER, HALF, THREE_QUARTER, END_PHASE, COMPLETED
+}
+
+const getMatchStatus = (start: string, end: string, completed: boolean): [number, MatchStatus] => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const now = new Date();
+    if (completed || isAfter(now, endDate)) return [100, MatchStatus.COMPLETED];
+    if (isBefore(now, startDate)) return [0, MatchStatus.NOT_STARTED];
+    const matchDuration = differenceInMinutes(endDate, startDate);
+    const elapsedTime = differenceInMinutes(now, startDate);
+    const percentCompleted = Math.round(elapsedTime / matchDuration * 100);
+    if (percentCompleted < 25) return [percentCompleted, MatchStatus.QUARTER];
+    if (percentCompleted < 50) return [percentCompleted, MatchStatus.HALF];
+    if (percentCompleted < 75) return [percentCompleted, MatchStatus.THREE_QUARTER];
+    if (percentCompleted < 100) return [percentCompleted, MatchStatus.END_PHASE];
+    return [percentCompleted, MatchStatus.COMPLETED];
+}
 
 function TeamSwitcher(props: ITeamSwitcherProps) {
     const classes = useStyles();
@@ -67,20 +89,28 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
         confidenceScores,
         userMatch: { match: { left, right, start, completed: matchCompleted, mom: matchMom, winner, end }, prediction },
         index,
-        save
+        save,
+        edit,
+        isEditMode,
     } = props;
     const [team, setTeam] = useState(prediction.team);
     const [mom, setMom] = useState(prediction.mom);
     const [confidence, setConfidence] = useState(prediction.confidence);
     const [cache, setCache] = useState(prediction.confidence);
+    const [currTime, setCurrTime] = useState(new Date());
 
+    const [percentCompleted, matchStatus] = getMatchStatus(start, end, matchCompleted);
+
+    const matchInterval = { start: subHours(new Date(start), 1), end: new Date(end) };
     const timeout = differenceInMilliseconds(subHours(new Date(start), 1), new Date());
-    const [locked, setLocked] = useState(timeout < 0);
-    const disabled = matchCompleted || !team || locked;
+    const [locked, setLocked] = useState(timeout < 0 && !isEditMode);
+    const isUnlockable = locked && matchStatus !== MatchStatus.END_PHASE && matchStatus !== MatchStatus.COMPLETED;
+    const disabled = matchCompleted || !team || locked || right === "TBD";
 
     useEffect(() => {
+        // save prediction when time is up
         const startTimer = () => {
-            if (timeout < 0x7FFFFFFF && timeout > 0) {
+            if (!!save && timeout < 0x7FFFFFFF && timeout > 0) {
                 return setTimeout(() => {
                     if (!team) {
                         setConfidence(minimumScoreAssignable);
@@ -88,15 +118,22 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                     }
                     updatePredictionHandler(index, { team, mom, confidence: confidence || minimumScoreAssignable });
                     setLocked(true);
-                    // setTimeout(save);
+                    setTimeout(save);
                 }, timeout);
-            } else {
-                return setTimeout(noop, 1);
+            }
+        };
+        // start updating matching progress every minute after match start.
+        const startTicker = () => {
+            if (isWithinInterval(currTime, matchInterval)) {
+                return setInterval(() => setCurrTime(new Date()), 60000);
             }
         };
         const timerId = startTimer();
+        const intervalId = startTicker();
         return function cleanUp() {
-            clearTimeout(timerId);
+            if (timerId) clearTimeout(timerId);
+            if (intervalId) clearInterval(intervalId)
+
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [save]);
@@ -106,6 +143,14 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
         // only update prediction if team, mom, or confidence is to be updated
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [team, mom, confidence]);
+
+    useEffect(() => {
+        setTeam(prediction.team);
+        setMom(prediction.mom);
+        setConfidence(prediction.confidence);
+        setCache(prediction.confidence);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [prediction]);
 
     const isTeamSelected = (currentTeam: string) => {
         return currentTeam === team;
@@ -131,10 +176,12 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
             setCache(newValue as number);
         }
     };
-    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => !matchCompleted && !locked && switchTeam(name);
+    const _switchTeamHandler = (name: string) => (e: SyntheticEvent) => right !== "TBD" && !matchCompleted && !locked && switchTeam(name);
     const _momHandler = (e: object, value: IPlayerOption | null) => !matchCompleted && setMom(value?.player || "");
     const _confidenceHandler = (e: object, newValue: number | number[]) => !matchCompleted && setConfidence(cache);
 
+    const startDate = new Date(start);
+    const endDate = new Date(end);
     const _timeRemainingRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
         if (matchCompleted && completed) {
             return (
@@ -143,19 +190,33 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                     <div>{`Man of the match: ${matchMom}`}</div>
                 </div>
             );
-        } else if (locked) {
-            return (
-                <div>
-                    <div>{`Match start in ${minutes} minute(s)`}</div>
-                    <div>{`Prediction locked in`}</div>
-                </div>
-            );
+        } else if (timeout < 0) {
+            switch (matchStatus) {
+                case MatchStatus.NOT_STARTED: return (
+                    <div>
+                        <div>{`Match start in ${minutes} minute(s)`}</div>
+                        <div>{`Prediction locked`}</div>
+                    </div>
+                );
+                case MatchStatus.COMPLETED: return (
+                    <div>
+                        <div>{`Match completed @ ${endDate.toLocaleTimeString()} | Results Pending`}</div>
+                        <div>{`Prediction locked`}</div>
+                    </div>
+                );
+                // case MatchStatus.QUARTER:
+                // case MatchStatus.HALF:
+                // case MatchStatus.THREE_QUARTER
+                default: return (
+                    <div>
+                        <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
+                        <div>{`Prediction locked`}</div>
+                    </div>
+                );
+            }
         }
-        return `${days} days, ${hours} hours, ${minutes} minutes`;
+        return `${days} day(s), ${hours} hour(s), ${minutes} minute(s)`;
     }
-
-    const startDate = new Date(start);
-    const formattedMom = { team, player: mom };
 
     return (
         <Card
@@ -181,8 +242,8 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                     </>
                 }
                 action={
-                    locked &&
-                    <IconButton aria-label="unlock">
+                    !!edit && isUnlockable &&
+                    <IconButton aria-label="unlock" onClick={() => edit(index, matchStatus)}>
                         <LockOpenIcon />
                     </IconButton>
                 }
@@ -228,7 +289,7 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
                         </Grid>
                         <Grid item xs={12} md={3}>
                             <PlayerAutocomplete
-                                value={formattedMom}
+                                value={{ team, player: mom }}
                                 tournament={tournament}
                                 leftTeam={left}
                                 rightTeam={right}

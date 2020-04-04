@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSnackbar } from 'notistack';
 import Grid from '@material-ui/core/Grid';
@@ -6,16 +6,18 @@ import Container from '@material-ui/core/Container';
 import Intro from '../components/Intro';
 import { URL } from '../../../../Routes';
 import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times } from 'lodash-es';
-import LeagueAPI, { IPrediction, IMatch } from '../../../../api/LeagueAPI';
+import LeagueAPI, { IPrediction, IMatch, ISurvivorPredictionPayload } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
-import TeamSwitcher from '../components/TeamSwitcher';
+import TeamSwitcher, { MatchStatus } from '../components/TeamSwitcher';
 import { reducers } from '../../../../reducers';
 import { Paper, Fab } from '@material-ui/core';
 import Title from '../components/Title';
 import SaveIcon from '@material-ui/icons/Save';
 import SurvivorStatusBar from '../components/SurvivorStatusBar';
-import { differenceInMilliseconds, subHours } from 'date-fns';
+import { differenceInMilliseconds, subHours, addHours } from 'date-fns';
+import { IUserScore } from '../../../../api/DashboardAPI';
+import UnlockMatchDialog from '../components/UnlockMatchDialog';
 
 const useStyles = makeStyles(theme => ({
     mainGrid: {
@@ -97,6 +99,17 @@ interface ISurvivorProps {
     };
 }
 
+interface IPowerPlayPoints {
+    remaining: number;
+    total: number;
+}
+
+export interface IEditPredictionPayload {
+    open: boolean;
+    index: number;
+    matchStatus: MatchStatus;
+}
+
 export default function Survivor(props: ISurvivorProps) {
     if (!props.isAuthenticated) props.history.push(URL.HOME);
     const classes = useStyles();
@@ -112,6 +125,10 @@ export default function Survivor(props: ISurvivorProps) {
         { score: 80, remaining: 0 },
         { score: 100, remaining: 0 },
     ] as IConfidenceScore[]);
+    const [userScore, setUserScore] = useState({} as IUserScore);
+    const [powerPlayPoints, setPowerPlayPoints] = useState({ remaining: 0, total: 0 } as IPowerPlayPoints);
+    // const [freeHits, setFreeHits] = useState({} as IUserScore);
+    const [editPrediction, openEditPrediction] = useState({ open: false, index: 0, matchStatus: MatchStatus.NOT_STARTED } as IEditPredictionPayload);
 
     const tournament = props.match.params.game;
     const leagueName = props.match.params.league;
@@ -122,6 +139,18 @@ export default function Survivor(props: ISurvivorProps) {
         const init = () => {
             dispatch({ type: LEAGUE_ACTIONS.GET_SCHEDULE, tournament });
             dispatch({ type: LEAGUE_ACTIONS.GET_SURVIVOR_PREDICTION, tournament, leagueName });
+            Promise.all([
+                LeagueAPI.getLeague(leagueName),
+                LeagueAPI.getScore(tournament, leagueName)
+            ]).then(([
+                leagueResponse,
+                scoreResponse
+            ]) => {
+                setUserScore(scoreResponse.result.Item.leagues[0].scores[0]);
+                const { usedPowerPlayPoints } = scoreResponse.result.Item.leagues[0].scores[0];
+                const { totalPowerPlayPoints } = leagueResponse.result.Item;
+                setPowerPlayPoints({ remaining: totalPowerPlayPoints - (usedPowerPlayPoints || 0), total: totalPowerPlayPoints });
+            });
         }
         init();
         return function cleanup() {
@@ -163,6 +192,9 @@ export default function Survivor(props: ISurvivorProps) {
                     currConfidenceScores[(minimumScoreAssignable / 20) - 1].remaining -= 1;
                     set(prediction, "confidence", minimumScoreAssignable);
                 }
+                if (isEmpty(match.end)) {
+                    match.end = addHours(new Date(match.start), 3).toISOString();
+                }
                 return { match, prediction }
             });
             updateUserMatches(currUserMatches);
@@ -188,10 +220,10 @@ export default function Survivor(props: ISurvivorProps) {
         const currUserSchedule = cloneDeep(userMatches);
         set(currUserSchedule, [index, "prediction"], prediction);
         updateUserMatches(currUserSchedule);
+        return currUserSchedule;
     }
 
-    const _savePredictions = () => {
-        const payload = { tournament, leagueName, predictions: map(userMatches, "prediction") };
+    const _savePredictionToDb = useCallback((payload: ISurvivorPredictionPayload) => {
         LeagueAPI.setSurvivorPrediction(payload).then(() => {
             enqueueSnackbar("Changed Saved", {
                 variant: 'success'
@@ -201,6 +233,35 @@ export default function Survivor(props: ISurvivorProps) {
                 variant: 'error'
             })
         });
+    }, [enqueueSnackbar])
+
+    const _savePredictions = () => {
+        const payload = { tournament, leagueName, predictions: map(userMatches, "prediction") };
+        _savePredictionToDb(payload);
+    }
+
+    const _openUnlockPredictionHandler = (index: number, matchStatus: MatchStatus) => {
+        openEditPrediction({ open: true, index, matchStatus });
+    }
+
+    const _closeUnlockPredictionHandler = (index: number, prediction: IPrediction, usedPowerPlayPoints: number) => {
+        openEditPrediction({ open: false, index, matchStatus: MatchStatus.NOT_STARTED });
+        setPowerPlayPoints({
+            ...powerPlayPoints,
+            remaining: powerPlayPoints.remaining - usedPowerPlayPoints
+        });
+        _savePredictionToDb({ tournament, leagueName, predictions: map(updatePredictionHandler(index, prediction), "prediction") });
+        console.log(powerPlayPoints, usedPowerPlayPoints);
+        LeagueAPI.putScore(tournament, leagueName, {
+            ...userScore,
+            usedPowerPlayPoints: powerPlayPoints.total - powerPlayPoints.remaining + usedPowerPlayPoints,
+            usedFreeHits: 0
+        });
+    }
+
+    const _cancelUnlockPredictionHandler = () => {
+        console.log(userScore);
+        openEditPrediction({ open: false, index: 0, matchStatus: MatchStatus.NOT_STARTED });
     }
 
     const minimumScoreAssignable = min(
@@ -221,7 +282,9 @@ export default function Survivor(props: ISurvivorProps) {
                             confidenceScores={confidenceScores}
                             minimumScoreAssignable={minimumScoreAssignable}
                             updatePredictionHandler={updatePredictionHandler}
+                            isEditMode={false}
                             save={_savePredictions}
+                            edit={_openUnlockPredictionHandler}
                         />
                     </Grid>
                 )) : <Grid item xs={12}>Loading</Grid>
@@ -234,7 +297,7 @@ export default function Survivor(props: ISurvivorProps) {
                 <main>
                     <Intro
                         title={props.match.params.game}
-                        description={props.match.params.league}
+                        description={`${props.match.params.league} | Remaining PPP: ${powerPlayPoints.remaining}`}
                         image="https://source.unsplash.com/random"
                         imgText="main image description"
                         linkText=""
@@ -266,6 +329,20 @@ export default function Survivor(props: ISurvivorProps) {
                         </Grid>
                     </Grid>
                 </main>
+                {
+                    !isEmpty(userMatches) &&
+                    <UnlockMatchDialog
+                        editPrediction={editPrediction}
+                        tournament={tournament}
+                        userMatches={userMatches}
+                        confidenceScores={confidenceScores}
+                        minimumScoreAssignable={minimumScoreAssignable}
+                        powerPlayPoints={powerPlayPoints.remaining}
+                        updatePredictionHandler={updatePredictionHandler}
+                        handleCancel={_cancelUnlockPredictionHandler} // temp
+                        handleSubmit={_closeUnlockPredictionHandler}
+                    />
+                }
             </Container>
         </React.Fragment>
     );

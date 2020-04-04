@@ -8,7 +8,7 @@ import { URL } from '../../../../Routes';
 import CreateLeagueDialog from '../components/CreateLeagueDialog';
 import { cloneDeep, isEmpty, reduce, map, sortBy, reverse, get, } from 'lodash-es';
 import { check } from '../../../landing/modules/form/validation';
-import LeagueAPI, { ICreateLeaguePayload } from '../../../../api/LeagueAPI';
+import LeagueAPI, { ILeague } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import CardListItem from '../components/CardListItem';
@@ -43,9 +43,9 @@ export default function IPL(props: IDashboardProps) {
     const classes = useStyles();
     const dispatch = useDispatch();
     const store: any = useSelector((state: reducers) => state.LeagueReducer);
-    const [adminLeagues, setAdminLeagues] = useState([] as ICreateLeaguePayload[]);
-    const [userLeagues, setUserLeagues] = useState([] as ICreateLeaguePayload[]);
-    const [selectedLeague, setSelectedLeague] = useState({} as ICreateLeaguePayload);
+    const [adminLeagues, setAdminLeagues] = useState([] as ILeague[]);
+    const [userLeagues, setUserLeagues] = useState([] as ILeague[]);
+    const [selectedLeague, setSelectedLeague] = useState({} as ILeague);
     const [isCreateOpen, openCreate] = useState(false);
     const [isManageOpen, openManage] = useState(false);
 
@@ -104,9 +104,10 @@ export default function IPL(props: IDashboardProps) {
 
     const createLeague = async () => {
         if (validate()) {
-            const payload: ICreateLeaguePayload = {
+            const payload: ILeague = {
                 ...formFields,
                 tournament,
+                totalPowerPlayPoints: 3000,
                 userId: "" // will be set later in LeagueAPI
             };
             LeagueAPI.create(payload)

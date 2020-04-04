@@ -1,22 +1,30 @@
 import { API, Auth } from "aws-amplify";
+import { IUserScore, IScoreResult } from "./DashboardAPI";
 
 interface IAPIQueryResult {
     Count: number;
     ScannedCount: number;
 }
 
-export interface ICreateLeaguePayload {
+export interface ILeague {
     userId: string;
     leagueName: string;
     description: string;
     tournament: string;
+    totalPowerPlayPoints: number;
     created?: string;
+}
+
+interface ILeagueResult {
+    result: {
+        Item: ILeague;
+    }
 }
 
 export interface IUserLeagues extends IAPIQueryResult {
     Items: Array<{
-        adminLeagues: ICreateLeaguePayload[];
-        userLeagues: ICreateLeaguePayload[];
+        adminLeagues: ILeague[];
+        userLeagues: ILeague[];
     }>;
 }
 
@@ -69,7 +77,7 @@ export interface ITeamPlayers {
     players: string[];
 }
 
-interface ISurvivorPredictionPayload {
+export interface ISurvivorPredictionPayload {
     predictions: IPrediction[];
     tournament: string;
     leagueName: string;
@@ -82,7 +90,7 @@ export interface ISurvivorPredictionResult {
     };
 }
 
-const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues> => {
+const createLeague = async (payload: ILeague): Promise<IUserLeagues> => {
     const user = await Auth.currentAuthenticatedUser();
     return API.post("tru-fan", "/create-league", {
         body: {
@@ -92,7 +100,13 @@ const createLeague = async (payload: ICreateLeaguePayload): Promise<IUserLeagues
     });
 }
 
-const getUserLeagues = async (): Promise<Array<ICreateLeaguePayload>> => {
+const getLeague = async (leagueName: string): Promise<ILeagueResult> => {
+    return API.get("tru-fan", `/get-league/${leagueName}`, {
+        headers: {}
+    });
+};
+
+const getUserLeagues = async (): Promise<Array<ILeague>> => {
     const user = await Auth.currentAuthenticatedUser();
     return API.get("tru-fan", `/get-leagues/${user.attributes.email}`, {
         headers: {}
@@ -147,8 +161,23 @@ const getPlayers = async (tournament: string, team: string): Promise<IPlayerList
     });
 };
 
+const getScore = async (tournament: string, leagueName: string): Promise<IScoreResult> => {
+    const user = await Auth.currentAuthenticatedUser();
+    return API.get("tru-fan", `/get-score/${tournament}/${leagueName}/${user.attributes.email}`, {
+        headers: {}
+    });
+};
+
+const putScore = async (tournament: string, leagueName: string, score: IUserScore): Promise<IScoreResult> => {
+    const user = await Auth.currentAuthenticatedUser();
+    return API.put("tru-fan", `/update-score/${tournament}/${leagueName}/${user.attributes.email}`, {
+        body: { score }
+    });
+};
+
 export default {
     create: createLeague,
+    getLeague,
     getUserLeagues,
     getLeagueMembers,
     setLeagueMembers,
@@ -157,4 +186,6 @@ export default {
     getSurvivorPrediction,
     setSurvivorPrediction,
     getPlayers,
+    getScore,
+    putScore,
 };

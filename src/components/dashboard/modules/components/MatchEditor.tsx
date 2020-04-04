@@ -83,7 +83,7 @@ export default function MatchEditor(props: IMatchEditorProps) {
     const startDate = new Date(matchStart);
     const endDate = matchEnd ? new Date(matchEnd) : null;
     const _startHandler = (newStart: MaterialUiPickersDate) => newStart && setMatchStart(newStart.toISOString());
-    const _endHandler = (newEnd: MaterialUiPickersDate) => newEnd && setMatchEnd(newEnd.toISOString());
+    const _endHandler = (newEnd: MaterialUiPickersDate) => setMatchEnd(!!newEnd ? newEnd.toISOString() : "");
     const _completedHandler = (e: object, checked: boolean) => setCompleted(checked);
     const _winnerHandler = (e: object, value: string) => {
         setMatchWinner(value);
@@ -128,6 +128,7 @@ export default function MatchEditor(props: IMatchEditorProps) {
                             <DateTimePicker
                                 clearable
                                 fullWidth
+                                minDate={startDate}
                                 value={endDate}
                                 onChange={_endHandler}
                                 label="End"

@@ -27,6 +27,9 @@ export interface IUserScore {
     lostMatches: number[];
     survivorRank: number;
     confidenceRank: number;
+    usedPowerPlayPoints: number;
+    totalFreeHits: number;
+    usedFreeHits: number;
 }
 
 const getScores = async (tournament: string): Promise<IScoreResult> => {

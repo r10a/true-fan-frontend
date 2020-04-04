@@ -9,7 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import ChipInput from 'material-ui-chip-input';
-import LeagueAPI, { ICreateLeaguePayload } from '../../../../api/LeagueAPI';
+import LeagueAPI, { ILeague } from '../../../../api/LeagueAPI';
 import { reducers } from '../../../../reducers';
 import { useSelector } from 'react-redux';
 import { cloneDeep, map, get } from 'lodash-es';
@@ -63,7 +63,7 @@ const DialogActions = withStyles((theme: Theme) => ({
 }))(MuiDialogActions);
 
 interface IManageLeagueDialogProps {
-    league: ICreateLeaguePayload;
+    league: ILeague;
     open: boolean;
     handleClose: () => void;
 }
