@@ -8,9 +8,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { useMediaQuery, useTheme, Grid, makeStyles } from '@material-ui/core';
-import { IUserMatch, IConfidenceScore, IEditPredictionPayload } from '../views/Survivor';
+import { IUserMatch, IConfidenceScore, IEditPredictionPayload, IPowerPlayPoints, getValidFreeHits } from '../views/Survivor';
 import TeamSwitcher, { MatchStatus } from './TeamSwitcher';
 import { IPrediction } from '../../../../api/LeagueAPI';
+import { isEmpty, includes } from 'lodash-es';
+import Countdown, { CountdownRenderProps } from 'react-countdown-now';
 
 const useStyles = makeStyles(theme => ({
     teamSwitcher: {
@@ -25,12 +27,12 @@ interface IUnlockMatchDialog {
     editPrediction: IEditPredictionPayload;
     userMatches: IUserMatch[];
     tournament: string;
-    powerPlayPoints: number;
+    powerPlayPoints: IPowerPlayPoints;
     minimumScoreAssignable: number;
     confidenceScores: IConfidenceScore[];
     updatePredictionHandler: (index: number, prediction: IPrediction) => void;
     handleCancel: () => void;
-    handleSubmit: (index: number, prediction: IPrediction, powerPlayPointsUsed: number) => void;
+    handleSubmit: (index: number, prediction: IPrediction, powerPlayPointsUsed: number, useFreeHit: boolean) => void;
 }
 
 const Transition = React.forwardRef<unknown, TransitionProps>(function Transition(props, ref) {
@@ -62,7 +64,7 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
         handleCancel,
         handleSubmit,
         tournament,
-        powerPlayPoints,
+        powerPlayPoints: { remaining, freeHits, usedFreeHits },
         confidenceScores,
         minimumScoreAssignable,
     } = props;
@@ -71,10 +73,16 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
     const classes = useStyles();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const userMatch = userMatches[index];
+    const useFreeHit = !isEmpty(getValidFreeHits(freeHits, usedFreeHits)) && !includes([MatchStatus.END_PHASE, MatchStatus.COMPLETED], matchStatus);
+    const canEdit = (remaining - statusCostMap[matchStatus]) >= 0 || useFreeHit;
     const [prediction, setPrediction] = useState(userMatch.prediction);
 
     const updateUnlockedPredictionHandler = (index: number, prediction: IPrediction) => {
         setPrediction(prediction);
+    }
+
+    const _timeRemainingRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
+        return `${hours} hour(s), ${minutes} minute(s)`;
     }
 
     return (
@@ -90,18 +98,32 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
             >
                 <DialogTitle id="form-dialog-title">Edit Prediction</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        <div>
-                            {statusProgressMap[matchStatus]} this will cost you <span className={classes.boldText}> {statusCostMap[matchStatus]}</span> points.
-                        </div>
-                        <div>Current remaining points: <span className={classes.boldText}>{powerPlayPoints}</span></div>
+                    <DialogContentText component="div">
+                        {
+                            useFreeHit ?
+                                <>
+                                    <div>
+                                        You have {getValidFreeHits(freeHits, usedFreeHits).length} Free Hit(s) remaining which expires in
+                                        {" "} <Countdown date={new Date(getValidFreeHits(freeHits, usedFreeHits)[0].expiry)} renderer={_timeRemainingRenderer} />
+                                    </div>
+                                </>
+                                :
+                                <>
+                                    <div>
+                                        {statusProgressMap[matchStatus]} this will cost you <span className={classes.boldText}> {statusCostMap[matchStatus]}</span> points.
+                                    </div>
+                                    <div>
+                                        Current remaining points: <span className={classes.boldText}>{remaining}</span>
+                                    </div>
+                                </>
+                        }
                     </DialogContentText>
                     <Grid item xs={12} className={classes.teamSwitcher}>
                         <TeamSwitcher
                             userMatch={userMatch}
                             tournament={tournament}
                             index={index}
-                            isEditMode={(powerPlayPoints - statusCostMap[matchStatus]) >= 0}
+                            isEditMode={canEdit}
                             confidenceScores={confidenceScores}
                             minimumScoreAssignable={minimumScoreAssignable}
                             updatePredictionHandler={updateUnlockedPredictionHandler}
@@ -112,7 +134,7 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
                     <Button onClick={handleCancel} color="secondary">
                         Cancel
                     </Button>
-                    <Button onClick={() => handleSubmit(index, prediction, statusCostMap[matchStatus])} color="primary">
+                    <Button onClick={() => handleSubmit(index, prediction, statusCostMap[matchStatus], useFreeHit)} color="primary">
                         Save
                     </Button>
                 </DialogActions>

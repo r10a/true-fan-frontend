@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import Intro from '../components/Intro';
 import { URL } from '../../../../Routes';
-import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times } from 'lodash-es';
+import { isEmpty, map, zipWith, set, ceil, groupBy, omit, get, min, filter, cloneDeep, times, includes } from 'lodash-es';
 import LeagueAPI, { IPrediction, IMatch, ISurvivorPredictionPayload } from '../../../../api/LeagueAPI';
 import { LEAGUE_ACTIONS } from '../../../../reducers/LeagueReducer';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,7 +15,7 @@ import { Paper, Fab } from '@material-ui/core';
 import Title from '../components/Title';
 import SaveIcon from '@material-ui/icons/Save';
 import SurvivorStatusBar from '../components/SurvivorStatusBar';
-import { differenceInMilliseconds, subHours, addHours } from 'date-fns';
+import { differenceInMilliseconds, subHours, addHours, isAfter } from 'date-fns';
 import { IUserScore } from '../../../../api/DashboardAPI';
 import UnlockMatchDialog from '../components/UnlockMatchDialog';
 
@@ -99,15 +99,27 @@ interface ISurvivorProps {
     };
 }
 
-interface IPowerPlayPoints {
+export interface IPowerPlayPoints {
     remaining: number;
     total: number;
+    freeHits: IUserScore["freeHits"];
+    usedFreeHits: IUserScore["usedFreeHits"];
 }
 
 export interface IEditPredictionPayload {
     open: boolean;
     index: number;
     matchStatus: MatchStatus;
+}
+
+export const getValidFreeHits = (freeHits: IPowerPlayPoints["freeHits"], usedFreeHits: IPowerPlayPoints["usedFreeHits"]): IPowerPlayPoints["freeHits"] => {
+    if (isEmpty(freeHits)) {
+        return [];
+    }
+    const validFreeHits = filter(freeHits, ({ expiry, match }) => {
+        return isAfter(new Date(expiry), new Date()) && !includes(usedFreeHits, match);
+    });
+    return validFreeHits;
 }
 
 export default function Survivor(props: ISurvivorProps) {
@@ -126,8 +138,7 @@ export default function Survivor(props: ISurvivorProps) {
         { score: 100, remaining: 0 },
     ] as IConfidenceScore[]);
     const [userScore, setUserScore] = useState({} as IUserScore);
-    const [powerPlayPoints, setPowerPlayPoints] = useState({ remaining: 0, total: 0 } as IPowerPlayPoints);
-    // const [freeHits, setFreeHits] = useState({} as IUserScore);
+    const [powerPlayPoints, setPowerPlayPoints] = useState({ remaining: 0, total: 0, freeHits: [], usedFreeHits: [] } as IPowerPlayPoints);
     const [editPrediction, openEditPrediction] = useState({ open: false, index: 0, matchStatus: MatchStatus.NOT_STARTED } as IEditPredictionPayload);
 
     const tournament = props.match.params.game;
@@ -136,21 +147,26 @@ export default function Survivor(props: ISurvivorProps) {
 
     // constructor and destructor
     useEffect(() => {
-        const init = () => {
+        const init = async () => {
+
+            const getScore = async (): Promise<IUserScore> => {
+                try {
+                    const scoreResponse = await LeagueAPI.getScore(tournament, leagueName);
+                    const { usedPowerPlayPoints, freeHits, usedFreeHits } = scoreResponse.result.Item.leagues[0].scores[0];
+                    setUserScore(scoreResponse.result.Item.leagues[0].scores[0]);
+                    return { usedPowerPlayPoints, freeHits, usedFreeHits: usedFreeHits || [] } as IUserScore;
+                }
+                catch (e) {
+                    return {} as IUserScore;
+                }
+            }
+
             dispatch({ type: LEAGUE_ACTIONS.GET_SCHEDULE, tournament });
             dispatch({ type: LEAGUE_ACTIONS.GET_SURVIVOR_PREDICTION, tournament, leagueName });
-            Promise.all([
-                LeagueAPI.getLeague(leagueName),
-                LeagueAPI.getScore(tournament, leagueName)
-            ]).then(([
-                leagueResponse,
-                scoreResponse
-            ]) => {
-                setUserScore(scoreResponse.result.Item.leagues[0].scores[0]);
-                const { usedPowerPlayPoints } = scoreResponse.result.Item.leagues[0].scores[0];
-                const { totalPowerPlayPoints } = leagueResponse.result.Item;
-                setPowerPlayPoints({ remaining: totalPowerPlayPoints - (usedPowerPlayPoints || 0), total: totalPowerPlayPoints });
-            });
+            const leagueResponse = await LeagueAPI.getLeague(leagueName);
+            const { totalPowerPlayPoints } = leagueResponse.result.Item;
+            const { usedPowerPlayPoints, freeHits, usedFreeHits } = await getScore();
+            setPowerPlayPoints({ remaining: totalPowerPlayPoints - (usedPowerPlayPoints || 0), total: totalPowerPlayPoints, freeHits, usedFreeHits });
         }
         init();
         return function cleanup() {
@@ -244,19 +260,43 @@ export default function Survivor(props: ISurvivorProps) {
         openEditPrediction({ open: true, index, matchStatus });
     }
 
-    const _closeUnlockPredictionHandler = (index: number, prediction: IPrediction, usedPowerPlayPoints: number) => {
+    const _closeUnlockPredictionHandler = (index: number, prediction: IPrediction, usedPowerPlayPoints: number, useFreeHit: boolean) => {
         openEditPrediction({ open: false, index, matchStatus: MatchStatus.NOT_STARTED });
+        const getScoreUpdate = () => {
+            if (useFreeHit) {
+                console.log(powerPlayPoints);
+                const validFreeHits = getValidFreeHits(powerPlayPoints.freeHits, powerPlayPoints.usedFreeHits);
+                console.log(validFreeHits,
+                        powerPlayPoints.usedFreeHits,
+                        validFreeHits[0].match);
+                return {
+                    usedPowerPlayPoints: powerPlayPoints.total - powerPlayPoints.remaining,
+                    usedFreeHits: [
+                        ...powerPlayPoints.usedFreeHits,
+                        validFreeHits[0].match
+                    ]
+                }
+            } else {
+                return {
+                    usedPowerPlayPoints: powerPlayPoints.total - powerPlayPoints.remaining + usedPowerPlayPoints,
+                    usedFreeHits: [...powerPlayPoints.usedFreeHits]
+                }
+            }
+        };
+
+        const score = getScoreUpdate();
+
         setPowerPlayPoints({
             ...powerPlayPoints,
-            remaining: powerPlayPoints.remaining - usedPowerPlayPoints
+            remaining: powerPlayPoints.remaining - score.usedPowerPlayPoints,
+            usedFreeHits: score.usedFreeHits
         });
-        _savePredictionToDb({ tournament, leagueName, predictions: map(updatePredictionHandler(index, prediction), "prediction") });
-        console.log(powerPlayPoints, usedPowerPlayPoints);
+
         LeagueAPI.putScore(tournament, leagueName, {
             ...userScore,
-            usedPowerPlayPoints: powerPlayPoints.total - powerPlayPoints.remaining + usedPowerPlayPoints,
-            usedFreeHits: 0
+            ...score
         });
+        _savePredictionToDb({ tournament, leagueName, predictions: map(updatePredictionHandler(index, prediction), "prediction") });
     }
 
     const _cancelUnlockPredictionHandler = () => {
@@ -297,7 +337,10 @@ export default function Survivor(props: ISurvivorProps) {
                 <main>
                     <Intro
                         title={props.match.params.game}
-                        description={`${props.match.params.league} | Remaining PPP: ${powerPlayPoints.remaining}`}
+                        description={
+                            `${props.match.params.league}
+                            Remaining PPP: ${powerPlayPoints.remaining} | FreeHits: ${getValidFreeHits(powerPlayPoints.freeHits, powerPlayPoints.usedFreeHits).length}`
+                        }
                         image="https://source.unsplash.com/random"
                         imgText="main image description"
                         linkText=""
@@ -337,7 +380,7 @@ export default function Survivor(props: ISurvivorProps) {
                         userMatches={userMatches}
                         confidenceScores={confidenceScores}
                         minimumScoreAssignable={minimumScoreAssignable}
-                        powerPlayPoints={powerPlayPoints.remaining}
+                        powerPlayPoints={powerPlayPoints}
                         updatePredictionHandler={updatePredictionHandler}
                         handleCancel={_cancelUnlockPredictionHandler} // temp
                         handleSubmit={_closeUnlockPredictionHandler}

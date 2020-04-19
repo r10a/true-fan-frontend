@@ -19,7 +19,10 @@ export interface ILeagueScore {
 export interface IUserScore {
     userId: string;
     tournamentLeague: string;
-    freeHits: number;
+    freeHits: Array<{
+        expiry: string;
+        match: number;
+    }>;
     strikes: number;
     username: string;
     confidenceScore: number;
@@ -28,8 +31,7 @@ export interface IUserScore {
     survivorRank: number;
     confidenceRank: number;
     usedPowerPlayPoints: number;
-    totalFreeHits: number;
-    usedFreeHits: number;
+    usedFreeHits: number[];
 }
 
 const getScores = async (tournament: string): Promise<IScoreResult> => {
