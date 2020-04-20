@@ -1,11 +1,11 @@
 // --- Post bootstrap -----
-import React from 'react';
-import ProductHero from './modules/views/ProductHero';
-import ProductValues from './modules/views/ProductValues';
-import ProductCategories from './modules/views/ProductCategories';
-import ProductHowItWorks from './modules/views/ProductHowItWorks';
-import AppFooter from './modules/views/AppFooter';
-import { URL } from '../../Routes';
+import React from "react";
+import ProductHero from "./modules/views/ProductHero";
+import ProductValues from "./modules/views/ProductValues";
+import ProductCategories from "./modules/views/ProductCategories";
+import ProductHowItWorks from "./modules/views/ProductHowItWorks";
+import AppFooter from "./modules/views/AppFooter";
+import { URL } from "../../Routes";
 
 interface IIndexProps {
   isAuthenticated: boolean;

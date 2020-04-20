@@ -1,47 +1,53 @@
-import React, { useState } from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import { Link as RouterLink } from 'react-router-dom';
-import { Auth } from 'aws-amplify';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
-import { URL } from '../../Routes';
-import { isEmpty, reduce, cloneDeep, set } from 'lodash-es';
-import { check, isValidPhone, isValidEmail } from './modules/form/validation';
+import React, { useState } from "react";
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Link from "@material-ui/core/Link";
+import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
+import { Link as RouterLink } from "react-router-dom";
+import { Auth } from "aws-amplify";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@material-ui/core";
+import { URL } from "../../Routes";
+import { isEmpty, reduce, cloneDeep, set } from "lodash-es";
+import { check, isValidPhone, isValidEmail } from "./modules/form/validation";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
+      {"Copyright © "}
       <Link color="inherit" href="https://material-ui.com/">
         Your Website
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(3),
   },
   submit: {
@@ -77,46 +83,57 @@ export default function SignUp(props: ISignUpProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (validateForm()) {
-
       Auth.signUp({
         username: email,
         password,
         attributes: {
           given_name: name,
-          ...(phone.length <= 2 && { phone_number: phone })
-        }
-      }).then(user => {
-        setHelperText({ email: "", password: "", name: "", phone: "", other: "", });
-        showConfirmation(true);
-      }).catch(err => {
-        if (err.code === 'UserNotConfirmedException') {
-          setUserExists(true);
-          showConfirmation(true);
-        } else if (err.code === 'InvalidPasswordException') {
+          ...(phone.length <= 2 && { phone_number: phone }),
+        },
+      })
+        .then((user) => {
           setHelperText({
-            ...helperTexts,
-            password: "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters"
+            email: "",
+            password: "",
+            name: "",
+            phone: "",
+            other: "",
           });
-        } else if (err.code === 'InvalidParameterException') {
-          if (err.message.search('password')) {
+          showConfirmation(true);
+        })
+        .catch((err) => {
+          if (err.code === "UserNotConfirmedException") {
+            setUserExists(true);
+            showConfirmation(true);
+          } else if (err.code === "InvalidPasswordException") {
             setHelperText({
               ...helperTexts,
-              password: "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters"
+              password:
+                "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters",
             });
+          } else if (err.code === "InvalidParameterException") {
+            if (err.message.search("password")) {
+              setHelperText({
+                ...helperTexts,
+                password:
+                  "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters",
+              });
+            }
           }
-        }
-        setHelperText({
-          ...helperTexts,
-          other: err.message
+          setHelperText({
+            ...helperTexts,
+            other: err.message,
+          });
+          console.log(err);
         });
-        console.log(err);
-      })
     } else {
       console.log("Validation failed");
     }
   };
 
-  const handleConfirmationSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleConfirmationSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     if (!isEmpty(confirmationCode)) {
       try {
@@ -131,7 +148,7 @@ export default function SignUp(props: ISignUpProps) {
       } catch (e) {
         setHelperText({
           ...helperTexts,
-          other: e.message
+          other: e.message,
         });
         showConfirmation(false);
         console.log(e);
@@ -141,41 +158,59 @@ export default function SignUp(props: ISignUpProps) {
     }
   };
 
-
   const validateForm = () => {
     const errors = cloneDeep(helperTexts);
 
     check(isEmpty(name), "name", "Required", errors);
-    check(phone.length > 2 && isValidPhone(phone), "phone", "format: +1XXXXXXXXXX", errors);
+    check(
+      phone.length > 2 && isValidPhone(phone),
+      "phone",
+      "format: +1XXXXXXXXXX",
+      errors
+    );
     check(!isValidEmail(email), "email", "Required", errors);
-    check(password.length < 8, "password", 
-      "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters", errors);
+    check(
+      password.length < 8,
+      "password",
+      "Password must have minimum 8 characters with Uppercase, Lowercase, Numbers, and Special Characters",
+      errors
+    );
     set(errors, "other", "");
     console.log(errors, !isValidEmail(email));
 
     setHelperText(errors);
-    return reduce(errors, (acc, value) => {
-      return acc && isEmpty(value);
-    }, true);
-  }
+    return reduce(
+      errors,
+      (acc, value) => {
+        return acc && isEmpty(value);
+      },
+      true
+    );
+  };
 
   const confirmationForm = () => {
     return (
       <div>
         <Dialog open={confirmation} aria-labelledby="form-dialog-title">
-          <form name="confirmation" className={classes.form} noValidate onSubmit={handleConfirmationSubmit}>
+          <form
+            name="confirmation"
+            className={classes.form}
+            noValidate
+            onSubmit={handleConfirmationSubmit}
+          >
             <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                To create your account successfully, please enter the confirmation code sent to your email address here.
-          </DialogContentText>
+                To create your account successfully, please enter the
+                confirmation code sent to your email address here.
+              </DialogContentText>
               <TextField
                 autoFocus
                 margin="dense"
                 id="code"
                 label="Confirmation Code"
                 type="code"
-                onChange={e => setConfirmationCode(e.target.value)}
+                onChange={(e) => setConfirmationCode(e.target.value)}
                 fullWidth
               />
             </DialogContent>
@@ -188,7 +223,7 @@ export default function SignUp(props: ISignUpProps) {
                 className={classes.submit}
               >
                 Sign Up
-            </Button>
+              </Button>
             </DialogActions>
           </form>
         </Dialog>
@@ -208,9 +243,14 @@ export default function SignUp(props: ISignUpProps) {
         <Grid item>
           <Link component={RouterLink} to={URL.SIGNIN} variant="body2">
             Already have an account?
-            </Link>
+          </Link>
         </Grid>
-        <form name="sign-up" className={classes.form} noValidate onSubmit={handleSubmit}>
+        <form
+          name="sign-up"
+          className={classes.form}
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -223,7 +263,7 @@ export default function SignUp(props: ISignUpProps) {
                 fullWidth
                 id="fname"
                 label="Name"
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
             </Grid>
@@ -237,7 +277,7 @@ export default function SignUp(props: ISignUpProps) {
                 id="phone"
                 label="Phone"
                 name="phone"
-                onChange={e => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value)}
                 autoComplete="tel"
                 value={phone}
               />
@@ -252,7 +292,7 @@ export default function SignUp(props: ISignUpProps) {
                 id="email"
                 label="Email Address"
                 name="email"
-                onChange={e => setEmail(e.target.value.trim().toLowerCase())}
+                onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                 autoComplete="email"
               />
             </Grid>
@@ -267,7 +307,7 @@ export default function SignUp(props: ISignUpProps) {
                 label="Password"
                 type="password"
                 id="password"
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
               />
             </Grid>

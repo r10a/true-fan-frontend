@@ -1,8 +1,8 @@
-import React from 'react';
-import clsx from 'clsx';
-import MuiPaper from '@material-ui/core/Paper';
-import { capitalize } from 'lodash-es';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import React from "react";
+import clsx from "clsx";
+import MuiPaper from "@material-ui/core/Paper";
+import { capitalize } from "lodash-es";
+import { withStyles, Theme } from "@material-ui/core/styles";
 
 const styles = (theme: Theme) => ({
   backgroundLight: {
@@ -19,16 +19,22 @@ const styles = (theme: Theme) => ({
   },
 });
 
-interface IPaperProps { 
-    [x: string]: any;
-    background?: 'light' | 'main' | 'dark';
-    classes: any;
-    className?: any;
-    padding?: boolean;
+interface IPaperProps {
+  [x: string]: any;
+  background?: "light" | "main" | "dark";
+  classes: any;
+  className?: any;
+  padding?: boolean;
 }
 
 function Paper(props: IPaperProps) {
-  const { background = 'light', classes, className, padding = false, ...other } = props;
+  const {
+    background = "light",
+    classes,
+    className,
+    padding = false,
+    ...other
+  } = props;
   return (
     <MuiPaper
       elevation={0}
@@ -38,7 +44,7 @@ function Paper(props: IPaperProps) {
         {
           [classes.padding]: padding,
         },
-        className,
+        className
       )}
       {...other}
     />

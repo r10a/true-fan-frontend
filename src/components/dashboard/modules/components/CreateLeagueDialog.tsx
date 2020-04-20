@@ -1,15 +1,15 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { map, isEmpty } from 'lodash-es';
-import Slide from '@material-ui/core/Slide';
-import { TransitionProps } from '@material-ui/core/transitions';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import React from "react";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import { map, isEmpty } from "lodash-es";
+import Slide from "@material-ui/core/Slide";
+import { TransitionProps } from "@material-ui/core/transitions";
+import { useMediaQuery, useTheme } from "@material-ui/core";
 
 interface ICreateDialogProps<T> {
   open: boolean;
@@ -25,21 +25,29 @@ interface ICreateDialogProps<T> {
   handleSubmit: () => void;
 }
 
-const Transition = React.forwardRef<unknown, TransitionProps>(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
+const Transition = React.forwardRef<unknown, TransitionProps>(
+  function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  }
+);
 
 export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
-
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <React.Fragment>
-      <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title" TransitionComponent={Transition} fullScreen={fullScreen}>
+      <Dialog
+        open={props.open}
+        onClose={props.handleClose}
+        aria-labelledby="form-dialog-title"
+        TransitionComponent={Transition}
+        fullScreen={fullScreen}
+      >
         <DialogTitle id="form-dialog-title">Create a League</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To Create a new private {props.type} league, please enter the following information.
+            To Create a new private {props.type} league, please enter the
+            following information.
           </DialogContentText>
           {map(props.fields, ({ id, label }, index) => (
             <TextField
@@ -49,7 +57,12 @@ export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
               margin="dense"
               id={id}
               label={label}
-              onChange={e => props.setFormField({ ...props.formFields, [id]: e.target.value })}
+              onChange={(e) =>
+                props.setFormField({
+                  ...props.formFields,
+                  [id]: e.target.value,
+                })
+              }
               helperText={props.helperTexts[id]}
               error={!isEmpty(props.helperTexts[id])}
               fullWidth
