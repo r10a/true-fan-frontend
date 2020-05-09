@@ -152,6 +152,7 @@ export const getValidFreeHits = (
 
 export default function Survivor(props: ISurvivorProps) {
   if (!props.isAuthenticated) props.history.push(URL.HOME);
+
   const classes = useStyles();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
@@ -222,6 +223,7 @@ export default function Survivor(props: ISurvivorProps) {
         usedFreeHits,
       });
     };
+
     init();
     return function cleanup() {
       dispatch({ type: LEAGUE_ACTIONS.RESET });
@@ -265,7 +267,7 @@ export default function Survivor(props: ISurvivorProps) {
         schedule,
         predictions,
         (match: IMatch, prediction: IPrediction) => {
-          // auto assign for skipped matches
+          // auto assign for skipped matches. Think about moving to backend
           if (
             isEmpty(prediction.team) &&
             (match.completed ||
@@ -284,12 +286,20 @@ export default function Survivor(props: ISurvivorProps) {
                   "score"
                 )
               ) || 0;
-            currConfidenceScores[
-              minimumScoreAssignable / 20 - 1
-            ].remaining -= 1;
-            set(prediction, "confidence", minimumScoreAssignable);
+            if (minimumScoreAssignable !== 0) {
+              // edge case where no scores remainining to allocate
+              currConfidenceScores[
+                minimumScoreAssignable / 20 - 1
+              ].remaining -= 1;
+            }
+            if (prediction.confidence === 0) {
+              // Only overrride if confidence was not set
+              set(prediction, "confidence", minimumScoreAssignable);
+            }
           }
+
           if (isEmpty(match.end)) {
+            // remove this when schedule is set
             match.end = addHours(new Date(match.start), 3).toISOString();
           }
           return { match, prediction };
@@ -455,6 +465,7 @@ export default function Survivor(props: ISurvivorProps) {
             index={index}
             confidenceScores={confidenceScores}
             minimumScoreAssignable={minimumScoreAssignable}
+            powerPlayPoints={powerPlayPoints}
             updatePredictionHandler={updatePredictionHandler}
             isEditMode={false}
             save={_savePredictions}

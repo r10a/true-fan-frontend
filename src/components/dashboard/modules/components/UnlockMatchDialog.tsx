@@ -15,7 +15,7 @@ import {
   IPowerPlayPoints,
   getValidFreeHits,
 } from "../views/Survivor";
-import TeamSwitcher, { MatchStatus } from "./TeamSwitcher";
+import TeamSwitcher, { MatchStatus, statusCostMap } from "./TeamSwitcher";
 import { IPrediction } from "../../../../api/LeagueAPI";
 import { isEmpty, includes } from "lodash-es";
 import Countdown, { CountdownRenderProps } from "react-countdown-now";
@@ -51,15 +51,6 @@ const Transition = React.forwardRef<unknown, TransitionProps>(
     return <Slide direction="up" ref={ref} {...props} />;
   }
 );
-
-const statusCostMap = {
-  [MatchStatus.NOT_STARTED]: 100,
-  [MatchStatus.QUARTER]: 100,
-  [MatchStatus.HALF]: 500,
-  [MatchStatus.THREE_QUARTER]: 1000,
-  [MatchStatus.END_PHASE]: Number.POSITIVE_INFINITY,
-  [MatchStatus.COMPLETED]: Number.POSITIVE_INFINITY,
-};
 
 const statusProgressMap = {
   [MatchStatus.NOT_STARTED]:
@@ -169,6 +160,7 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
               userMatch={userMatch}
               tournament={tournament}
               index={index}
+              powerPlayPoints={props.powerPlayPoints}
               isEditMode={canEdit}
               confidenceScores={confidenceScores}
               minimumScoreAssignable={minimumScoreAssignable}

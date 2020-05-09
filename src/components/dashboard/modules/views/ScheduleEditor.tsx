@@ -143,7 +143,7 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
   const getMatchEditors = () => {
     return !isEmpty(schedule) ? (
       map(schedule, (match, index) => (
-        <Grid item xs={12} key={`${match.left}vs${match.right}`}>
+        <Grid item xs={12} key={`match#${index}`}>
           <MatchEditor
             match={match}
             tournament={tournament}

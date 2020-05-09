@@ -13,8 +13,13 @@ import theme from "../../../../theme";
 import ConfidenceSlider from "./ConfidenceSlider";
 import PlayerAutocomplete from "./PlayerAutocomplete";
 import { CardHeader, IconButton } from "@material-ui/core";
-import { IUserMatch, IConfidenceScore } from "../views/Survivor";
-import { find } from "lodash-es";
+import {
+  IUserMatch,
+  IConfidenceScore,
+  getValidFreeHits,
+  IPowerPlayPoints,
+} from "../views/Survivor";
+import { find, isEmpty, includes } from "lodash-es";
 import {
   subHours,
   differenceInMilliseconds,
@@ -56,6 +61,7 @@ interface ITeamSwitcherProps {
   index: number;
   minimumScoreAssignable: number;
   confidenceScores: IConfidenceScore[];
+  powerPlayPoints: IPowerPlayPoints;
   updatePredictionHandler: (index: number, prediction: IPrediction) => void;
   isEditMode: boolean;
   save?: () => void;
@@ -75,6 +81,15 @@ export enum MatchStatus {
   END_PHASE,
   COMPLETED,
 }
+
+export const statusCostMap = {
+  [MatchStatus.NOT_STARTED]: 100,
+  [MatchStatus.QUARTER]: 100,
+  [MatchStatus.HALF]: 500,
+  [MatchStatus.THREE_QUARTER]: 1000,
+  [MatchStatus.END_PHASE]: Number.POSITIVE_INFINITY,
+  [MatchStatus.COMPLETED]: Number.POSITIVE_INFINITY,
+};
 
 const getMatchStatus = (
   start: string,
@@ -120,6 +135,7 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
     save,
     edit,
     isEditMode,
+    powerPlayPoints: { freeHits, usedFreeHits, remaining },
   } = props;
   const [team, setTeam] = useState(prediction.team);
   const [mom, setMom] = useState(prediction.mom);
@@ -148,10 +164,18 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
     matchStatus !== MatchStatus.COMPLETED;
   const disabled = matchCompleted || !team || locked || right === "TBD";
 
+  const useFreeHit =
+    !isEmpty(getValidFreeHits(freeHits, usedFreeHits)) &&
+    !includes(
+      [MatchStatus.THREE_QUARTER, MatchStatus.END_PHASE, MatchStatus.COMPLETED],
+      matchStatus
+    );
+  const canEdit = remaining - statusCostMap[matchStatus] >= 0 || useFreeHit;
+
   useEffect(() => {
     // save prediction when time is up
     const startTimer = () => {
-      if (!!save && timeout < 0x7fffffff && timeout > 0) {
+      if (!!save && timeout < Number.MAX_VALUE && timeout > 0) {
         return setTimeout(() => {
           if (!team) {
             setConfidence(minimumScoreAssignable);
@@ -247,8 +271,64 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
       switch (matchStatus) {
         case MatchStatus.NOT_STARTED:
           return (
-            <div>
+            <div onClick={() => !!edit && canEdit && edit(index, matchStatus)}>
               <div>{`Match start in ${minutes} minute(s)`}</div>
+              <div>{`Prediction locked`}</div>
+              <div>
+                {canEdit
+                  ? useFreeHit
+                    ? "FreeHit Available"
+                    : "P1 Available"
+                  : ""}
+              </div>
+            </div>
+          );
+        case MatchStatus.QUARTER:
+          return (
+            <div onClick={() => !!edit && canEdit && edit(index, matchStatus)}>
+              <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
+              <div>{`Prediction locked`}</div>
+              <div>
+                {canEdit
+                  ? useFreeHit
+                    ? "FreeHit Available"
+                    : "P1 Available"
+                  : ""}
+              </div>
+            </div>
+          );
+        case MatchStatus.HALF:
+          return (
+            <div onClick={() => !!edit && canEdit && edit(index, matchStatus)}>
+              <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
+              <div>{`Prediction locked`}</div>
+              <div>
+                {canEdit
+                  ? useFreeHit
+                    ? "FreeHit Available"
+                    : "P2 Available"
+                  : ""}
+              </div>
+            </div>
+          );
+        case MatchStatus.THREE_QUARTER:
+          return (
+            <div onClick={() => !!edit && canEdit && edit(index, matchStatus)}>
+              <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
+              <div>{`Prediction locked`}</div>
+              <div>
+                {canEdit
+                  ? useFreeHit
+                    ? "FreeHit Available"
+                    : "P3 Available"
+                  : ""}
+              </div>
+            </div>
+          );
+        case MatchStatus.END_PHASE:
+          return (
+            <div>
+              <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
               <div>{`Prediction locked`}</div>
             </div>
           );
@@ -256,16 +336,6 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
           return (
             <div>
               <div>{`Match completed @ ${endDate.toLocaleTimeString()} | Results Pending`}</div>
-              <div>{`Prediction locked`}</div>
-            </div>
-          );
-        // case MatchStatus.QUARTER:
-        // case MatchStatus.HALF:
-        // case MatchStatus.THREE_QUARTER
-        default:
-          return (
-            <div>
-              <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
               <div>{`Prediction locked`}</div>
             </div>
           );

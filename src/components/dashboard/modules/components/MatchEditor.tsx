@@ -7,6 +7,7 @@ import {
   IconButton,
   Radio,
   RadioGroup,
+  TextField,
 } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
@@ -70,6 +71,8 @@ export default function MatchEditor(props: IMatchEditorProps) {
     },
     index,
   } = props;
+  const [leftTeamName, setLeftTeamName] = useState(left);
+  const [rightTeamName, setRightTeamName] = useState(right);
   const [matchStart, setMatchStart] = useState(start);
   const [matchEnd, setMatchEnd] = useState(end);
   const [completed, setCompleted] = useState(matchCompleted);
@@ -78,8 +81,8 @@ export default function MatchEditor(props: IMatchEditorProps) {
 
   useEffect(() => {
     updateMatchHandler(index, {
-      left,
-      right,
+      left: leftTeamName,
+      right: rightTeamName,
       start: matchStart,
       end: matchEnd,
       completed,
@@ -88,7 +91,15 @@ export default function MatchEditor(props: IMatchEditorProps) {
     });
     // only update prediction if team, mom, or confidence is to be updated
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchStart, matchEnd, mom, completed, matchWinner]);
+  }, [
+    leftTeamName,
+    rightTeamName,
+    matchStart,
+    matchEnd,
+    mom,
+    completed,
+    matchWinner,
+  ]);
 
   const _momHandler = (e: object, value: IPlayerOption | null) =>
     setMom(value?.player || "");
@@ -164,12 +175,32 @@ export default function MatchEditor(props: IMatchEditorProps) {
             </Grid>
             <Grid item xs={12} md={3}>
               <PlayerAutocomplete
-                value={{ team: left, player: mom }}
+                value={{ team: leftTeamName, player: mom }}
                 tournament={tournament}
-                leftTeam={left}
-                rightTeam={right}
+                leftTeam={leftTeamName}
+                rightTeam={rightTeamName}
                 disabled={false}
                 changeHandler={_momHandler}
+              />
+            </Grid>
+          </Grid>
+          <Grid item container spacing={2} justify="center" alignItems="center">
+            <Grid item xs={12} md>
+              <TextField
+                id="left"
+                label="Left Team"
+                value={leftTeamName}
+                onChange={(e) => setLeftTeamName(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md>
+              <TextField
+                id="right"
+                label="Right Team"
+                value={rightTeamName}
+                onChange={(e) => setRightTeamName(e.target.value)}
+                fullWidth
               />
             </Grid>
           </Grid>
@@ -186,15 +217,21 @@ export default function MatchEditor(props: IMatchEditorProps) {
                   className={classes.winnerSelection}
                 >
                   <FormControlLabel
-                    value={left}
+                    value={leftTeamName}
                     control={<Radio />}
-                    label={left}
-                    labelPlacement="start"
+                    label={leftTeamName}
+                    labelPlacement="end"
                   />
                   <FormControlLabel
-                    value={right}
+                    value={rightTeamName}
                     control={<Radio />}
-                    label={right}
+                    label={rightTeamName}
+                    labelPlacement="end"
+                  />
+                  <FormControlLabel
+                    value="tie"
+                    control={<Radio />}
+                    label="tie"
                     labelPlacement="end"
                   />
                   <FormControlLabel
@@ -204,7 +241,7 @@ export default function MatchEditor(props: IMatchEditorProps) {
                         <HighlightOffIcon />
                       </IconButton>
                     }
-                    label=""
+                    label="clear"
                   />
                 </RadioGroup>
               </FormControl>
