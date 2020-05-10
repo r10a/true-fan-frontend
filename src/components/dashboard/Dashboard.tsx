@@ -3,9 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { URL } from "../../Routes";
 import ScoreBoard from "./modules/components/ScoreBoard";
 import { map } from "lodash-es";
-import { Container, Grid, Paper } from "@material-ui/core";
-import Title from "./modules/components/Title";
+import { Link as RouterLink } from "react-router-dom";
+import { Container, Grid, Paper, Link } from "@material-ui/core";
 import DashboardAPI, { ITournament } from "../../api/DashboardAPI";
+import Intro from "./modules/components/Intro";
 
 interface IDashboardProps {
   isAuthenticated: boolean;
@@ -63,7 +64,23 @@ export default function Dashboard(props: IDashboardProps) {
           elevation={3}
           className={classes.tournamentScores}
         >
-          <Title title={tScore.tournament} />
+          <Intro
+            title={
+              <Link
+                color="inherit"
+                variant="h3"
+                underline="none"
+                component={RouterLink}
+                to={URL.DASHBOARD.IPL}
+              >
+                {tScore.tournament}
+              </Link>
+            }
+            description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
+            image="https://source.unsplash.com/random"
+            imgText="main image description"
+            linkText=""
+          />
           <Grid container spacing={3} justify="center">
             {map(tScore.leagues, (leagueScore) => (
               <ScoreBoard key={leagueScore.leagueName} score={leagueScore} />

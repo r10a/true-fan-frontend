@@ -12,9 +12,12 @@ import {
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
+  Link,
 } from "@material-ui/core";
-import { map, sortBy, take, join } from "lodash-es";
+import { Link as RouterLink } from "react-router-dom";
+import { map, sortBy, take, join, get, split } from "lodash-es";
 import { ILeagueScore, IUserScore } from "../../../../api/DashboardAPI";
+import { URL } from "../../../../Routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,6 +83,11 @@ function ScoreBoard(props: IScoreBoardProps) {
   const {
     score: { leagueName, scores },
   } = props;
+  const tournament = get(
+    split(get(scores, [0, "tournamentLeague"]), "/"),
+    0,
+    ""
+  );
 
   const [survivoreScores, setSurvivorScores] = useState([] as IUserScore[]);
   const [confidenceScores, setConfidenceScores] = useState([] as IUserScore[]);
@@ -100,9 +108,21 @@ function ScoreBoard(props: IScoreBoardProps) {
   return (
     <Grid item className={classes.root} xs={12} md={6}>
       <AppBar position="static" color="default">
-        <Typography className={classes.leagueTitle} variant="h5" noWrap>
-          {leagueName}
-        </Typography>
+        <Link
+          color="inherit"
+          variant="h5"
+          underline="none"
+          // className=
+          component={RouterLink}
+          to={URL.DASHBOARD.SURVIVOR.replace(":game", tournament).replace(
+            ":league",
+            leagueName
+          )}
+        >
+          <Typography className={classes.leagueTitle} variant="h5" noWrap>
+            {leagueName}
+          </Typography>
+        </Link>
         <Tabs
           value={value}
           onChange={handleChange}

@@ -68,48 +68,31 @@ function ProductHowItWorks(props: { classes: any }) {
           className={classes.title}
           component="h2"
         >
-          How it works
+          How to Play
         </Typography>
         <div>
           <Grid container spacing={5}>
             <Grid item xs={12} md={4}>
               <div className={classes.item}>
                 <div className={classes.number}>1.</div>
-                <img
-                  src="/static/themes/onepirate/productHowItWorks1.svg"
-                  alt="suitcase"
-                  className={classes.image}
-                />
                 <Typography variant="h5" align="center">
-                  Appointment every Wednesday 9am.
+                  Create a League.
                 </Typography>
               </div>
             </Grid>
             <Grid item xs={12} md={4}>
               <div className={classes.item}>
                 <div className={classes.number}>2.</div>
-                <img
-                  src="/static/themes/onepirate/productHowItWorks2.svg"
-                  alt="graph"
-                  className={classes.image}
-                />
                 <Typography variant="h5" align="center">
-                  First come, first served. Our offers are in limited
-                  quantities, so be quick.
+                  Invite your friends
                 </Typography>
               </div>
             </Grid>
             <Grid item xs={12} md={4}>
               <div className={classes.item}>
                 <div className={classes.number}>3.</div>
-                <img
-                  src="/static/themes/onepirate/productHowItWorks3.svg"
-                  alt="clock"
-                  className={classes.image}
-                />
                 <Typography variant="h5" align="center">
-                  {"New offers every week. New experiences, new surprises. "}
-                  {"Your Sundays will no longer be alike."}
+                  Compete for the top spot by predicting which team wins!
                 </Typography>
               </div>
             </Grid>
@@ -123,7 +106,7 @@ function ProductHowItWorks(props: { classes: any }) {
           //   component="a"
           href="/premium-themes/onepirate/sign-up/"
         >
-          Get started
+          FAQ
         </Button>
       </Container>
     </section>

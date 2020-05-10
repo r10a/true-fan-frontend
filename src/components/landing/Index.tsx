@@ -19,8 +19,8 @@ function Index(props: IIndexProps) {
   return (
     <React.Fragment>
       <ProductHero />
-      <ProductValues />
-      <ProductCategories />
+      {/* <ProductValues /> */}
+      {/* <ProductCategories /> */}
       <ProductHowItWorks />
       <AppFooter />
     </React.Fragment>

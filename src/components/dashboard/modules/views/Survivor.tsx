@@ -383,7 +383,6 @@ export default function Survivor(props: ISurvivorProps) {
     });
     const getScoreUpdate = () => {
       if (useFreeHit) {
-        console.log(powerPlayPoints);
         const validFreeHits = getValidFreeHits(
           powerPlayPoints.freeHits,
           powerPlayPoints.usedFreeHits

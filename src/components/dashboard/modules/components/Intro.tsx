@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 interface IIntroProps {
   image: string;
   imgText: string;
-  title: string;
+  title: string | JSX.Element;
   description: string;
   linkText: string;
 }
