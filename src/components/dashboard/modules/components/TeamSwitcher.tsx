@@ -29,6 +29,8 @@ import {
   isWithinInterval,
 } from "date-fns";
 
+const MAX_32_BIT_INTEGER = 0x7fffffff;
+
 const useStyles = makeStyles({
   card: {
     display: "flex",
@@ -175,7 +177,7 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
   useEffect(() => {
     // save prediction when time is up
     const startTimer = () => {
-      if (!!save && timeout < Number.MAX_VALUE && timeout > 0) {
+      if (!!save && timeout < MAX_32_BIT_INTEGER && timeout > 0) {
         return setTimeout(() => {
           if (!team) {
             setConfidence(minimumScoreAssignable);
