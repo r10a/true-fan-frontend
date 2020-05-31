@@ -74,11 +74,11 @@ export default function SignUp(props: ISignUpProps) {
     password: "",
     name: "",
     phone: "",
+    confirmation: "",
     other: "",
   });
 
   const [confirmation, showConfirmation] = useState(false);
-  const [userExists, setUserExists] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -97,13 +97,13 @@ export default function SignUp(props: ISignUpProps) {
             password: "",
             name: "",
             phone: "",
+            confirmation: "",
             other: "",
           });
           showConfirmation(true);
         })
         .catch((err) => {
           if (err.code === "UserNotConfirmedException") {
-            setUserExists(true);
             showConfirmation(true);
           } else if (err.code === "InvalidPasswordException") {
             setHelperText({
@@ -137,20 +137,19 @@ export default function SignUp(props: ISignUpProps) {
     e.preventDefault();
     if (!isEmpty(confirmationCode)) {
       try {
-        if (userExists) {
-          await Auth.resendSignUp(email);
-        }
         await Auth.confirmSignUp(email, confirmationCode);
         await Auth.signIn(email, password);
+
         props.userHasAuthenticated(true);
         console.log("created user successfully");
         props.history.push(URL.DASHBOARD.HOME);
       } catch (e) {
         setHelperText({
           ...helperTexts,
-          other: e.message,
+          confirmation: e.message,
         });
-        showConfirmation(false);
+        setConfirmationCode("");
+        showConfirmation(true);
         console.log(e);
       }
     } else {
@@ -213,6 +212,9 @@ export default function SignUp(props: ISignUpProps) {
                 onChange={(e) => setConfirmationCode(e.target.value)}
                 fullWidth
               />
+              <div className="MuiFormLabel-root Mui-error">
+                {helperTexts.confirmation}
+              </div>
             </DialogContent>
             <DialogActions>
               <Button

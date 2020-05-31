@@ -13,6 +13,14 @@ import { Link as RouterLink } from "react-router-dom";
 import { Auth } from "aws-amplify";
 import { URL } from "../../Routes";
 import { isAdmin } from "../../App";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@material-ui/core";
+import { isEmpty } from "lodash-es";
 
 function Copyright() {
   return (
@@ -60,7 +68,12 @@ export default function SignIn(props: ISignInProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [confirmation, showConfirmation] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState("");
+  const [helperTexts, setHelperText] = useState({
+    confirmation: "",
+    other: "",
+  });
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -73,7 +86,39 @@ export default function SignIn(props: ISignInProps) {
         props.setIsAdmin(await isAdmin());
         props.history.push(URL.DASHBOARD.HOME);
       } catch (e) {
-        setError(e.message);
+        if (e.code === "UserNotConfirmedException") {
+          showConfirmation(true);
+        }
+        setHelperText({
+          ...helperTexts,
+          other: e.message,
+        });
+        console.log(e);
+      }
+    } else {
+      console.log("Validation failed");
+    }
+  };
+
+  const handleConfirmationSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    e.preventDefault();
+    if (!isEmpty(confirmationCode)) {
+      try {
+        await Auth.confirmSignUp(email, confirmationCode);
+        await Auth.signIn(email, password);
+
+        props.userHasAuthenticated(true);
+        console.log("created user successfully");
+        props.history.push(URL.DASHBOARD.HOME);
+      } catch (e) {
+        setHelperText({
+          ...helperTexts,
+          confirmation: e.message,
+        });
+        setConfirmationCode("");
+        showConfirmation(true);
         console.log(e);
       }
     } else {
@@ -83,6 +128,53 @@ export default function SignIn(props: ISignInProps) {
 
   const validateForm = () => {
     return email.length > 0 && password.length > 0;
+  };
+
+  const confirmationForm = () => {
+    return (
+      <div>
+        <Dialog open={confirmation} aria-labelledby="form-dialog-title">
+          <form
+            name="confirmation"
+            className={classes.form}
+            noValidate
+            onSubmit={handleConfirmationSubmit}
+          >
+            <DialogTitle id="form-dialog-title">Confirmation</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                To create your account successfully, enter the confirmation code
+                sent to your email address here. Please check your Spam folders
+                too!
+              </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="code"
+                label="Confirmation Code"
+                type="code"
+                onChange={(e) => setConfirmationCode(e.target.value)}
+                fullWidth
+              />
+              <div className="MuiFormLabel-root Mui-error">
+                {helperTexts.confirmation}
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+              >
+                Sign In
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+      </div>
+    );
   };
 
   return (
@@ -149,11 +241,12 @@ export default function SignIn(props: ISignInProps) {
             </Grid>
           </Grid>
         </form>
-        <div className="MuiFormLabel-root Mui-error">{error}</div>
+        <div className="MuiFormLabel-root Mui-error">{helperTexts.other}</div>
       </div>
       <Box mt={8}>
         <Copyright />
       </Box>
+      {confirmationForm()}
     </Container>
   );
 }
