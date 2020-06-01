@@ -33,15 +33,6 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
     flexDirection: "column",
   },
-  statusBar: {
-    [theme.breakpoints.down("sm")]: {
-      top: theme.spacing(8),
-    },
-    [theme.breakpoints.up("md")]: {
-      top: theme.spacing(8.7),
-    },
-    backgroundColor: theme.palette.secondary.main,
-  },
   saveFab: {
     margin: 0,
     top: "auto",
@@ -57,15 +48,6 @@ const useStyles = makeStyles((theme) => ({
     },
     left: "auto",
     position: "fixed",
-  },
-  saveButton: {
-    paddingLeft: theme.spacing(5) + "px !important",
-    [theme.breakpoints.up("lg")]: {
-      display: "block",
-    },
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
   },
   extendedIcon: {
     marginRight: theme.spacing(1),
@@ -165,15 +147,11 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
         <Intro
           title={tournament}
           description=""
-          image="https://source.unsplash.com/random"
+          image="https://source.unsplash.com/bY4cqxp7vos"
           imgText="main image description"
           linkText=""
         />
-        <SurvivorStatusBar
-          classes={classes}
-          confidenceScores={[]}
-          save={_saveSchedule}
-        />
+        <SurvivorStatusBar confidenceScores={[]} save={_saveSchedule} />
         <Grid container spacing={4}>
           <Grid item xs={12}>
             <Paper elevation={3} className={classes.leaguesSection}>

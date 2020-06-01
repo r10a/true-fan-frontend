@@ -77,7 +77,7 @@ export default function Dashboard(props: IDashboardProps) {
               </Link>
             }
             description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
-            image="https://source.unsplash.com/random"
+            image="https://source.unsplash.com/hY3sn--SgwM"
             imgText="main image description"
             linkText=""
           />

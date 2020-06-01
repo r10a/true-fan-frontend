@@ -8,7 +8,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Hidden from "@material-ui/core/Hidden";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   card: {
     display: "flex",
   },
@@ -18,7 +18,10 @@ const useStyles = makeStyles({
   cardMedia: {
     width: 160,
   },
-});
+  titleColor: {
+    color: theme.palette.primary.dark,
+  },
+}));
 
 interface IJumboButtonProps {
   image: string;
@@ -38,7 +41,14 @@ function JumboButton(props: IJumboButtonProps) {
         <Card className={classes.card} onClick={props.onClick}>
           <div className={classes.cardDetails}>
             <CardContent>
-              <Typography component="h2" variant="h5">
+              <Typography
+                component="h2"
+                variant="h5"
+                color="primary"
+                classes={{
+                  colorPrimary: classes.titleColor,
+                }}
+              >
                 {title}
               </Typography>
               <Typography variant="subtitle1" paragraph>

@@ -38,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
   leagueTitle: {
     paddingTop: theme.spacing(2),
   },
+  tabTitle: {
+    backgroundColor: theme.palette.primary.light,
+  },
+  tabSelected: {
+    color: theme.palette.primary.dark + " !important",
+  },
 }));
 
 interface ITabPanelProps {
@@ -80,6 +86,9 @@ function ScoreBoard(props: IScoreBoardProps) {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = useState(0);
+  const tabCustomStyles = {
+    selected: classes.tabSelected,
+  };
   const {
     score: { leagueName, scores },
   } = props;
@@ -107,12 +116,17 @@ function ScoreBoard(props: IScoreBoardProps) {
 
   return (
     <Grid item className={classes.root} xs={12} md={6}>
-      <AppBar position="static" color="default">
+      <AppBar
+        position="static"
+        color="primary"
+        classes={{
+          colorPrimary: classes.tabTitle,
+        }}
+      >
         <Link
           color="inherit"
           variant="h5"
           underline="none"
-          // className=
           component={RouterLink}
           to={URL.DASHBOARD.SURVIVOR.replace(":game", tournament).replace(
             ":league",
@@ -131,8 +145,8 @@ function ScoreBoard(props: IScoreBoardProps) {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="Survivor" {...a11yProps(0)} />
-          <Tab label="Confidence" {...a11yProps(1)} />
+          <Tab label="Survivor" {...a11yProps(0)} classes={tabCustomStyles} />
+          <Tab label="Confidence" {...a11yProps(1)} classes={tabCustomStyles} />
         </Tabs>
       </AppBar>
       <SwipeableViews

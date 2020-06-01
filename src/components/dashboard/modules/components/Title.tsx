@@ -7,6 +7,9 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     alignSelf: "flex-start",
   },
+  titleColor: {
+    color: theme.palette.primary.dark,
+  },
 }));
 
 function Title(props: { title: string }) {
@@ -18,6 +21,9 @@ function Title(props: { title: string }) {
       color="primary"
       gutterBottom
       className={classes.title}
+      classes={{
+        colorPrimary: classes.titleColor,
+      }}
     >
       {props.title}
     </Typography>

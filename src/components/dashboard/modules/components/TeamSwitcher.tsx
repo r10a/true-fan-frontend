@@ -43,7 +43,7 @@ const useStyles = makeStyles({
     width: 160,
   },
   cardSelected: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: theme.palette.secondary.dark,
     color: "white",
   },
   rootPaper: {

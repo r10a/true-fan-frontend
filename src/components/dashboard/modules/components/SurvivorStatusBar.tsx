@@ -6,19 +6,48 @@ import {
   Badge,
   Avatar,
   Button,
+  makeStyles,
 } from "@material-ui/core";
 import SaveIcon from "@material-ui/icons/Save";
 import { map } from "lodash-es";
 import { IConfidenceScore } from "../views/Survivor";
 
 export interface ISurvivorStatusProps {
-  classes: Record<any, string>;
   confidenceScores: IConfidenceScore[];
   save: () => void;
 }
 
+const useStyles = makeStyles((theme) => ({
+  statusBar: {
+    [theme.breakpoints.down("sm")]: {
+      top: theme.spacing(8),
+    },
+    [theme.breakpoints.up("md")]: {
+      top: theme.spacing(8.7),
+    },
+    backgroundColor: theme.palette.primary.light,
+  },
+  statusBarBadge: {
+    backgroundColor: theme.palette.secondary.light,
+  },
+  saveButton: {
+    paddingLeft: theme.spacing(5) + "px !important",
+    [theme.breakpoints.up("lg")]: {
+      display: "block",
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  avatar: {
+    color: theme.palette.getContrastText(theme.palette.primary.contrastText),
+    backgroundColor: theme.palette.primary.dark,
+  },
+}));
+
 function SurvivorStatusBar(props: ISurvivorStatusProps) {
-  const { classes, confidenceScores } = props;
+  const classes = useStyles();
+  const { confidenceScores } = props;
 
   return (
     <AppBar position="sticky" className={classes.statusBar}>
@@ -31,9 +60,11 @@ function SurvivorStatusBar(props: ISurvivorStatusProps) {
                   overlap="circle"
                   color="primary"
                   badgeContent={remaining.toString()}
-                  className={classes.statusBarBadge}
+                  classes={{
+                    colorPrimary: classes.statusBarBadge,
+                  }}
                 >
-                  <Avatar>{score}</Avatar>
+                  <Avatar className={classes.avatar}>{score}</Avatar>
                 </Badge>
               </Grid>
             );
