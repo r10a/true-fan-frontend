@@ -29,7 +29,6 @@ const styles = (theme: Theme) => ({
     marginTop: theme.spacing(2),
   },
   linkPrimary: {
-    fontSize: 16,
     color: theme.palette.common.white,
   },
 });
@@ -59,11 +58,14 @@ function ProductHero(props: { classes: any }) {
       <Link
         variant="button"
         underline="none"
-        className={classes.linkPrimary}
         component={RouterLink}
         to={URL.SIGNUP}
       >
-        <Button variant="contained" color="primary">
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.linkPrimary}
+        >
           Sign Up
         </Button>
       </Link>

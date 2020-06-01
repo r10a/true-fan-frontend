@@ -29,10 +29,11 @@ import { Auth } from "aws-amplify";
 import { URL } from "../../../../Routes";
 
 const drawerWidth = 240;
+const logo = "truFAN-logo-text.png";
 
 const useStyles = makeStyles((theme) => ({
-  title: {
-    fontSize: 24,
+  titleLogo: {
+    height: theme.spacing(3),
   },
   placeholder: toolbarStyles(theme).root,
   toolbar: {
@@ -193,11 +194,10 @@ export default function AppAppBar(props: IAppAppBarProps) {
             variant="h6"
             underline="none"
             color="inherit"
-            className={classes.title}
             component={RouterLink}
             to={props.isAuthenticated ? URL.DASHBOARD.HOME : URL.HOME}
           >
-            {"Tru Fan"}
+            <img src={logo} alt="header" className={classes.titleLogo} />
           </Link>
           <div className={clsx(classes.right)}>
             <Link
