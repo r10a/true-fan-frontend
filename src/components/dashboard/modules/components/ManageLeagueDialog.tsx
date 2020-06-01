@@ -141,6 +141,7 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
         <ChipInput
           defaultValue={chipMembers}
           value={members}
+          blurBehavior="add"
           onAdd={(chip) => isEmail(chip) && addMember(chip)}
           onDelete={(chip, index) => removeMember(index)}
           fullWidth={true}

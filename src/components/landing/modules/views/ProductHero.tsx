@@ -63,7 +63,7 @@ function ProductHero(props: { classes: any }) {
         component={RouterLink}
         to={URL.SIGNUP}
       >
-        <Button variant="contained" color="secondary">
+        <Button variant="contained" color="primary">
           Sign Up
         </Button>
       </Link>
