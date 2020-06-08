@@ -10,8 +10,9 @@ const styles = (theme: Theme) =>
       position: "relative",
       display: "flex",
       alignItems: "center",
+      height: "85vh",
       [theme.breakpoints.up("sm")]: {
-        height: "80vh",
+        height: "90vh",
         minHeight: 500,
         maxHeight: 1300,
       },
@@ -21,7 +22,7 @@ const styles = (theme: Theme) =>
       marginBottom: theme.spacing(14),
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
+      height: "100%",
     },
     backdrop: {
       position: "absolute",
@@ -62,7 +63,7 @@ function ProductHeroLayout(props: IProductHeroLayoutProps) {
     <section className={classes.root}>
       <Container className={classes.container}>
         {children}
-        <div className={classes.backdrop} />
+        {/* <div className={classes.backdrop} /> */}
         <div className={clsx(classes.background, backgroundClassName)} />
       </Container>
     </section>

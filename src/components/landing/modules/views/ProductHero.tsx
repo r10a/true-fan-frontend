@@ -13,7 +13,11 @@ const styles = (theme: Theme) => ({
   background: {
     backgroundImage: `url(${backgroundImage})`,
     backgroundColor: "#7fc7d9", // Average color of the background image.
-    backgroundPosition: "center",
+    backgroundPosition: "top",
+    backgroundSize: "65vh",
+    [theme.breakpoints.up("sm")]: {
+      backgroundSize: "95vh",
+    },
   },
   button: {
     minWidth: 200,
@@ -31,6 +35,10 @@ const styles = (theme: Theme) => ({
   linkPrimary: {
     color: theme.palette.common.white,
   },
+  banner: {
+    marginTop: "auto",
+    paddingBottom: theme.spacing(5),
+  },
 });
 
 function ProductHero(props: { classes: any }) {
@@ -44,16 +52,14 @@ function ProductHero(props: { classes: any }) {
         src={backgroundImage}
         alt="increase priority"
       />
-      <Typography color="inherit" align="center" variant="h2" marked="center">
-        A Fantasy League for True Sports Fans
-      </Typography>
       <Typography
+        className={classes.banner}
         color="inherit"
         align="center"
-        variant="h5"
-        className={classes.h5}
+        variant="h6"
+        marked="center"
       >
-        Completely Free!
+        A Fantasy League for True Sports Fans
       </Typography>
       <Link
         variant="button"
@@ -69,9 +75,6 @@ function ProductHero(props: { classes: any }) {
           Sign Up
         </Button>
       </Link>
-      <Typography variant="body2" color="inherit" className={classes.more}>
-        Discover the experience
-      </Typography>
     </ProductHeroLayout>
   );
 }

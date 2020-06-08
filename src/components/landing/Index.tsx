@@ -1,11 +1,16 @@
 // --- Post bootstrap -----
 import React from "react";
 import ProductHero from "./modules/views/ProductHero";
-import ProductValues from "./modules/views/ProductValues";
-import ProductCategories from "./modules/views/ProductCategories";
 import ProductHowItWorks from "./modules/views/ProductHowItWorks";
 import AppFooter from "./modules/views/AppFooter";
 import { URL } from "../../Routes";
+import { Container, makeStyles } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  mainGrid: {
+    padding: 0,
+  },
+}));
 
 interface IIndexProps {
   isAuthenticated: boolean;
@@ -15,15 +20,16 @@ interface IIndexProps {
 
 function Index(props: IIndexProps) {
   if (props.isAuthenticated) props.history.push(URL.DASHBOARD.HOME);
+  const classes = useStyles();
 
   return (
-    <React.Fragment>
+    <Container maxWidth="lg" className={classes.mainGrid}>
       <ProductHero />
       {/* <ProductValues /> */}
       {/* <ProductCategories /> */}
       <ProductHowItWorks />
       <AppFooter />
-    </React.Fragment>
+    </Container>
   );
 }
 

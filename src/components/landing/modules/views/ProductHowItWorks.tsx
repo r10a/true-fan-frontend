@@ -13,8 +13,8 @@ const styles = (theme: Theme) =>
       overflow: "hidden",
     },
     container: {
-      marginTop: theme.spacing(10),
-      marginBottom: theme.spacing(15),
+      marginTop: theme.spacing(5),
+      marginBottom: theme.spacing(10),
       position: "relative",
       display: "flex",
       flexDirection: "column",
@@ -27,7 +27,7 @@ const styles = (theme: Theme) =>
       padding: theme.spacing(0, 5),
     },
     title: {
-      marginBottom: theme.spacing(14),
+      marginBottom: theme.spacing(10),
     },
     number: {
       fontSize: 24,
@@ -57,11 +57,6 @@ function ProductHowItWorks(props: { classes: any }) {
   return (
     <section className={classes.root}>
       <Container className={classes.container}>
-        <img
-          src="/static/themes/onepirate/productCurvyLines.png"
-          className={classes.curvyLines}
-          alt="curvy lines"
-        />
         <Typography
           variant="h4"
           marked="center"
