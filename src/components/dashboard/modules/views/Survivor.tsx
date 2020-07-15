@@ -366,11 +366,6 @@ export default function Survivor(props: ISurvivorProps) {
           powerPlayPoints.freeHits,
           powerPlayPoints.usedFreeHits
         );
-        console.log(
-          validFreeHits,
-          powerPlayPoints.usedFreeHits,
-          validFreeHits[0].match
-        );
         return {
           usedPowerPlayPoints:
             powerPlayPoints.total - powerPlayPoints.remaining,

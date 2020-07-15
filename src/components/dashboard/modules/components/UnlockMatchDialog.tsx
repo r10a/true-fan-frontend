@@ -17,7 +17,7 @@ import {
 } from "../views/Survivor";
 import TeamSwitcher, { MatchStatus, statusCostMap } from "./TeamSwitcher";
 import { IPrediction } from "../../../../api/LeagueAPI";
-import { isEmpty, includes } from "lodash-es";
+import { isEmpty, includes, isEqual } from "lodash-es";
 import Countdown, { CountdownRenderProps } from "react-countdown-now";
 
 const useStyles = makeStyles((theme) => ({
@@ -92,12 +92,18 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
     );
   const canEdit = remaining - statusCostMap[matchStatus] >= 0 || useFreeHit;
   const [prediction, setPrediction] = useState(userMatch.prediction);
+  const [isChanged, setIsChanged] = useState(false);
 
   const updateUnlockedPredictionHandler = (
     index: number,
-    prediction: IPrediction
+    updatedPrediction: IPrediction
   ) => {
-    setPrediction(prediction);
+    if (isEqual(userMatch.prediction, updatedPrediction)) {
+      setIsChanged(false);
+    } else {
+      setIsChanged(true);
+      setPrediction(updatedPrediction);
+    }
   };
 
   const _timeRemainingRenderer = ({
@@ -173,14 +179,16 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
             Cancel
           </Button>
           <Button
-            onClick={() =>
+            disabled={!isChanged}
+            onClick={() => {
+              setPrediction(prediction);
               handleSubmit(
                 index,
                 prediction,
                 statusCostMap[matchStatus],
                 useFreeHit
-              )
-            }
+              );
+            }}
             color="primary"
           >
             Save
