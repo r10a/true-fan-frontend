@@ -32,7 +32,7 @@ export default function Dashboard(props: IDashboardProps) {
   if (!props.isAuthenticated) props.history.push(URL.HOME);
   if (props.admin)
     props.history.push(
-      URL.DASHBOARD.SCHEDULE_EDITOR.replace(":game", "IPL-2020")
+      URL.LEAGUES.SCHEDULE_EDITOR.replace(":game", "IPL-2020")
     );
   const classes = useStyles();
 
@@ -58,29 +58,29 @@ export default function Dashboard(props: IDashboardProps) {
 
   return (
     <Container maxWidth="lg" className={classes.mainGrid}>
+      <Intro
+        title={
+          <Link
+            color="inherit"
+            variant="h6"
+            underline="none"
+            component={RouterLink}
+            to={URL.LEAGUES.IPL}
+          >
+            Indian Premier League
+          </Link>
+        }
+        description=""
+        image="https://source.unsplash.com/hY3sn--SgwM"
+        imgText="my leagues"
+        linkText=""
+      />
       {map(scores, (tScore) => (
         <Paper
           key={tScore.tournament}
           elevation={3}
           className={classes.tournamentScores}
         >
-          <Intro
-            title={
-              <Link
-                color="inherit"
-                variant="h3"
-                underline="none"
-                component={RouterLink}
-                to={URL.DASHBOARD.IPL}
-              >
-                {tScore.tournament}
-              </Link>
-            }
-            description="Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents."
-            image="https://source.unsplash.com/hY3sn--SgwM"
-            imgText="main image description"
-            linkText=""
-          />
           <Grid container spacing={3} justify="center">
             {map(tScore.leagues, (leagueScore) => (
               <ScoreBoard key={leagueScore.leagueName} score={leagueScore} />

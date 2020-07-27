@@ -19,6 +19,8 @@ import { reducers } from "../../../../reducers";
 import { useSelector } from "react-redux";
 import { cloneDeep, map, get } from "lodash-es";
 import isEmail from "validator/lib/isEmail";
+import { useMediaQuery, useTheme } from "@material-ui/core";
+import Transition from "./Transition";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -81,6 +83,8 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
   const {
     league: { tournament, leagueName },
   } = props;
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [members, setMembers] = useState([] as string[]);
   const store: any = useSelector((state: reducers) => state.LeagueReducer);
@@ -129,6 +133,8 @@ export default function ManageLeagueDialog(props: IManageLeagueDialogProps) {
       onClose={props.handleClose}
       aria-labelledby="customized-dialog-title"
       open={props.open}
+      TransitionComponent={Transition}
+      fullScreen={fullScreen}
     >
       <DialogTitle id="customized-dialog-title" onClose={props.handleClose}>
         {props.league.leagueName}

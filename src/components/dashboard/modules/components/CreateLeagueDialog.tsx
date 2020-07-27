@@ -7,9 +7,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { map, isEmpty } from "lodash-es";
-import Slide from "@material-ui/core/Slide";
-import { TransitionProps } from "@material-ui/core/transitions";
 import { useMediaQuery, useTheme } from "@material-ui/core";
+import Transition from "./Transition";
 
 interface ICreateDialogProps<T> {
   open: boolean;
@@ -22,14 +21,8 @@ interface ICreateDialogProps<T> {
   }>;
   type: string;
   handleClose: () => void;
-  handleSubmit: () => void;
+  handleSubmit: (tournament: string) => void;
 }
-
-const Transition = React.forwardRef<unknown, TransitionProps>(
-  function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  }
-);
 
 export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
   const theme = useTheme();
@@ -73,7 +66,10 @@ export default function CreateLeagueDialog<T>(props: ICreateDialogProps<T>) {
           <Button onClick={props.handleClose} color="secondary">
             Cancel
           </Button>
-          <Button onClick={props.handleSubmit} color="primary">
+          <Button
+            onClick={() => props.handleSubmit(props.type)}
+            color="primary"
+          >
             Create
           </Button>
         </DialogActions>

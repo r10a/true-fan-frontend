@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import clsx from "clsx";
 import Link from "@material-ui/core/Link";
+import Image from "material-ui-image";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import AppBar from "../components/AppBar";
 import Toolbar, { styles as toolbarStyles } from "../components/Toolbar";
@@ -19,21 +20,30 @@ import {
   ListItemIcon,
   ListItemText,
   makeStyles,
+  ListItemSecondaryAction,
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import SettingsIcon from "@material-ui/icons/Settings";
+import HelpIcon from "@material-ui/icons/Help";
+import EditIcon from "@material-ui/icons/Edit";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import SportsCricketIcon from "@material-ui/icons/SportsCricket";
-import DashboardIcon from "@material-ui/icons/Dashboard";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { Auth } from "aws-amplify";
 import { URL } from "../../../../Routes";
+import theme from "../../../../theme";
 
 const drawerWidth = 240;
 const logo = "truFAN-logo-text.png";
 
 const useStyles = makeStyles((theme) => ({
   titleLogo: {
-    height: theme.spacing(3),
+    flex: 1,
+    [theme.breakpoints.up("md")]: {
+      flex: 0,
+    },
   },
   placeholder: toolbarStyles(theme).root,
   toolbar: {
@@ -195,9 +205,21 @@ export default function AppAppBar(props: IAppAppBarProps) {
             underline="none"
             color="inherit"
             component={RouterLink}
-            to={props.isAuthenticated ? URL.DASHBOARD.HOME : URL.HOME}
+            to={props.isAuthenticated ? URL.LEAGUES.HOME : URL.HOME}
+            className={classes.titleLogo}
           >
-            <img src={logo} alt="header" className={classes.titleLogo} />
+            {/* <div> */}
+            <Image
+              src={logo}
+              alt="header"
+              disableSpinner
+              aspectRatio={30 / 9}
+              color={theme.palette.primary.main}
+              imageStyle={{
+                height: theme.spacing(3),
+              }}
+            />
+            {/* </div> */}
           </Link>
           <div className={clsx(classes.right)}>
             <Link
@@ -280,26 +302,77 @@ export default function AppAppBar(props: IAppAppBarProps) {
           <ListItem
             button
             onClick={() => {
-              history.push(URL.DASHBOARD.HOME);
-              props.toggleSidebar();
-            }}
-          >
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              history.push(URL.DASHBOARD.IPL);
+              history.push(URL.LEAGUES.HOME);
               props.toggleSidebar();
             }}
           >
             <ListItemIcon>
               <SportsCricketIcon />
             </ListItemIcon>
-            <ListItemText primary="IPL" />
+            <ListItemText primary="My Leagues" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.LEAGUES.CREATE);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <AddCircleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Create a League" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.LEAGUES.MANAGE);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            <ListItemText primary="Manage Leagues" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.FAQ);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <QuestionAnswerIcon />
+            </ListItemIcon>
+            <ListItemText primary="FAQs" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.HOW_TO_PLAY);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <HelpIcon />
+            </ListItemIcon>
+            <ListItemText primary="How To Play" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
           </ListItem>
         </List>
       </Drawer>

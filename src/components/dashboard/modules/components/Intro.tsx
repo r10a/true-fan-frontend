@@ -58,8 +58,8 @@ function Intro(props: IIntroProps) {
         <Grid item md={6}>
           <div className={classes.mainFeaturedPostContent}>
             <Typography
-              component="h1"
-              variant="h3"
+              component="h6"
+              variant="h6"
               color="inherit"
               gutterBottom
             >

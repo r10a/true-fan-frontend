@@ -5,8 +5,6 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Slide from "@material-ui/core/Slide";
-import { TransitionProps } from "@material-ui/core/transitions";
 import { useMediaQuery, useTheme, Grid, makeStyles } from "@material-ui/core";
 import {
   IUserMatch,
@@ -19,6 +17,7 @@ import TeamSwitcher, { MatchStatus, statusCostMap } from "./TeamSwitcher";
 import { IPrediction } from "../../../../api/LeagueAPI";
 import { isEmpty, includes, isEqual } from "lodash-es";
 import Countdown, { CountdownRenderProps } from "react-countdown-now";
+import Transition from "./Transition";
 
 const useStyles = makeStyles((theme) => ({
   teamSwitcher: {
@@ -45,12 +44,6 @@ interface IUnlockMatchDialog {
     useFreeHit: boolean
   ) => void;
 }
-
-const Transition = React.forwardRef<unknown, TransitionProps>(
-  function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  }
-);
 
 const statusProgressMap = {
   [MatchStatus.NOT_STARTED]:

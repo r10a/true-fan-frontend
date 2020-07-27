@@ -9,9 +9,9 @@ import {
   AppBar,
   Tabs,
   Tab,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Link,
 } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
@@ -128,7 +128,7 @@ function ScoreBoard(props: IScoreBoardProps) {
           variant="h5"
           underline="none"
           component={RouterLink}
-          to={URL.DASHBOARD.SURVIVOR.replace(":game", tournament).replace(
+          to={URL.LEAGUES.SURVIVOR.replace(":game", tournament).replace(
             ":league",
             leagueName
           )}
@@ -162,8 +162,8 @@ function ScoreBoard(props: IScoreBoardProps) {
         >
           <>
             {map(survivoreScores, (score, rank) => (
-              <ExpansionPanel square key={score.username}>
-                <ExpansionPanelSummary
+              <Accordion square key={score.username}>
+                <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
@@ -177,8 +177,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                   <Typography className={classes.heading} variant="subtitle1">
                     {score.username}
                   </Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
+                </AccordionSummary>
+                <AccordionDetails>
                   <Grid container justify="center">
                     <Grid item xs={12}>
                       <Typography variant="subtitle1">Summary</Typography>
@@ -198,8 +198,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                       </Typography>
                     </Grid>
                   </Grid>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
+                </AccordionDetails>
+              </Accordion>
             ))}
           </>
         </TabPanel>
@@ -211,8 +211,8 @@ function ScoreBoard(props: IScoreBoardProps) {
         >
           <>
             {map(confidenceScores, (score, rank) => (
-              <ExpansionPanel square key={score.username}>
-                <ExpansionPanelSummary
+              <Accordion square key={score.username}>
+                <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
@@ -226,8 +226,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                   <Typography className={classes.heading} variant="subtitle1">
                     {score.username}
                   </Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
+                </AccordionSummary>
+                <AccordionDetails>
                   <Grid container justify="center">
                     <Grid item xs={12}>
                       <Typography variant="subtitle1">Summary</Typography>
@@ -243,8 +243,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                       </Typography>
                     </Grid>
                   </Grid>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
+                </AccordionDetails>
+              </Accordion>
             ))}
           </>
         </TabPanel>
