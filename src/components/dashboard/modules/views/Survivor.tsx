@@ -352,7 +352,7 @@ export default function Survivor(props: ISurvivorProps) {
   const _closeUnlockPredictionHandler = (
     index: number,
     prediction: IPrediction,
-    usedPowerPlayPoints: number,
+    currUsedPowerPlayPoints: number,
     useFreeHit: boolean
   ) => {
     openEditPrediction({
@@ -379,7 +379,7 @@ export default function Survivor(props: ISurvivorProps) {
           usedPowerPlayPoints:
             powerPlayPoints.total -
             powerPlayPoints.remaining +
-            usedPowerPlayPoints,
+            currUsedPowerPlayPoints,
           usedFreeHits: [...powerPlayPoints.usedFreeHits],
         };
       }
@@ -389,7 +389,7 @@ export default function Survivor(props: ISurvivorProps) {
 
     setPowerPlayPoints({
       ...powerPlayPoints,
-      remaining: powerPlayPoints.remaining - score.usedPowerPlayPoints,
+      remaining: powerPlayPoints.remaining - currUsedPowerPlayPoints,
       usedFreeHits: score.usedFreeHits,
     });
 
