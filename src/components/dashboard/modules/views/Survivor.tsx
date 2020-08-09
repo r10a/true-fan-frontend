@@ -389,7 +389,9 @@ export default function Survivor(props: ISurvivorProps) {
 
     setPowerPlayPoints({
       ...powerPlayPoints,
-      remaining: powerPlayPoints.remaining - currUsedPowerPlayPoints,
+      ...(useFreeHit
+        ? {}
+        : { remaining: powerPlayPoints.remaining - currUsedPowerPlayPoints }),
       usedFreeHits: score.usedFreeHits,
     });
 
