@@ -64,7 +64,7 @@ interface ISignInProps {
 }
 
 export default function SignIn(props: ISignInProps) {
-  if (props.isAuthenticated) props.history.push(URL.LEAGUES.HOME);
+  if (props.isAuthenticated) props.history.push(URL.LEAGUES.INSIGHTS);
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
@@ -85,7 +85,7 @@ export default function SignIn(props: ISignInProps) {
         await Auth.signIn(email, password);
         props.userHasAuthenticated(true);
         props.setIsAdmin(await isAdmin());
-        props.history.push(URL.LEAGUES.HOME);
+        props.history.push(URL.LEAGUES.INSIGHTS);
       } catch (e) {
         if (e.code === "UserNotConfirmedException") {
           showConfirmation(true);
@@ -112,7 +112,7 @@ export default function SignIn(props: ISignInProps) {
 
         props.userHasAuthenticated(true);
         console.log("created user successfully");
-        props.history.push(URL.LEAGUES.HOME);
+        props.history.push(URL.LEAGUES.INSIGHTS);
       } catch (e) {
         setHelperText({
           ...helperTexts,

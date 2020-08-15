@@ -31,6 +31,7 @@ import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import SportsCricketIcon from "@material-ui/icons/SportsCricket";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import AssistantIcon from "@material-ui/icons/Assistant";
 import { Auth } from "aws-amplify";
 import { URL } from "../../../../Routes";
 import theme from "../../../../theme";
@@ -205,7 +206,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
             underline="none"
             color="inherit"
             component={RouterLink}
-            to={props.isAuthenticated ? URL.LEAGUES.HOME : URL.HOME}
+            to={props.isAuthenticated ? URL.LEAGUES.INSIGHTS : URL.HOME}
             className={classes.titleLogo}
           >
             {/* <div> */}
@@ -299,6 +300,21 @@ export default function AppAppBar(props: IAppAppBarProps) {
         </div>
         <Divider />
         <List component="nav" aria-labelledby="dashboard-sidebar">
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.LEAGUES.INSIGHTS);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <AssistantIcon />
+            </ListItemIcon>
+            <ListItemText primary="Insights" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
           <ListItem
             button
             onClick={() => {

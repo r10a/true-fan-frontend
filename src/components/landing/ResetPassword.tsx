@@ -59,7 +59,7 @@ interface ISignInProps {
 }
 
 export default function ResetPassword(props: ISignInProps) {
-  if (props.isAuthenticated) props.history.push(URL.LEAGUES.HOME);
+  if (props.isAuthenticated) props.history.push(URL.LEAGUES.INSIGHTS);
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
@@ -93,7 +93,7 @@ export default function ResetPassword(props: ISignInProps) {
         await Auth.forgotPasswordSubmit(email, confirmationCode, password);
         props.userHasAuthenticated(true);
         console.log("password reset");
-        props.history.push(URL.LEAGUES.HOME);
+        props.history.push(URL.LEAGUES.INSIGHTS);
       } catch (e) {
         console.log(e);
       }

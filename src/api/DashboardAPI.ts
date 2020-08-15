@@ -6,9 +6,20 @@ export interface IScoreResult {
   };
 }
 
+export interface ITotalScoreResult {
+  result: {
+    Item: ITournamentScore;
+  };
+}
+
 export interface ITournament {
   tournament: string;
   leagues: ILeagueScore[];
+}
+
+export interface ITournamentScore {
+  tournament: string;
+  scores: IUserScore[];
 }
 
 export interface ILeagueScore {
@@ -34,6 +45,14 @@ export interface IUserScore {
   usedFreeHits: number[];
 }
 
+const getTotalScores = async (
+  tournament: string
+): Promise<ITotalScoreResult> => {
+  return API.get("tru-fan", `/get-total-scores/${tournament}`, {
+    headers: {},
+  });
+};
+
 const getScores = async (tournament: string): Promise<IScoreResult> => {
   const user = await Auth.currentAuthenticatedUser();
   return API.get(
@@ -47,4 +66,5 @@ const getScores = async (tournament: string): Promise<IScoreResult> => {
 
 export default {
   getScores,
+  getTotalScores,
 };

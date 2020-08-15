@@ -6,7 +6,8 @@ import SignIn from "./components/landing/SignIn";
 import HowToPlay from "./components/landing/HowToPlay";
 import FAQs from "./components/landing/FAQs";
 import ResetPassword from "./components/landing/ResetPassword";
-import Dashboard from "./components/dashboard/MyLeagues";
+import MyLeagues from "./components/dashboard/MyLeagues";
+import Insights from "./components/dashboard/Insights";
 import CreateLeague from "./components/dashboard/CreateLeague";
 import ManageLeagues from "./components/dashboard/ManageLeagues";
 import IPL from "./components/dashboard/modules/views/IPL";
@@ -28,6 +29,7 @@ export const URL = {
   FAQ: "/faq",
   HOW_TO_PLAY: "/how-to-play",
   LEAGUES: {
+    INSIGHTS: "/insights",
     HOME: "/leagues",
     CREATE: "/leagues/create",
     MANAGE: "/leagues/manage",
@@ -68,9 +70,15 @@ export default (props) => {
         appProps={props}
       />
       <AppliedRoute
+        path={URL.LEAGUES.INSIGHTS}
+        exact
+        component={Insights}
+        appProps={props}
+      />
+      <AppliedRoute
         path={URL.LEAGUES.HOME}
         exact
-        component={Dashboard}
+        component={MyLeagues}
         appProps={props}
       />
       <AppliedRoute

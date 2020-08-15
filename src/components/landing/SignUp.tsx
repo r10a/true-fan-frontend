@@ -63,7 +63,7 @@ interface ISignUpProps {
 }
 
 export default function SignUp(props: ISignUpProps) {
-  if (props.isAuthenticated) props.history.push(URL.LEAGUES.HOME);
+  if (props.isAuthenticated) props.history.push(URL.LEAGUES.INSIGHTS);
   const classes = useStyles();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -143,7 +143,7 @@ export default function SignUp(props: ISignUpProps) {
 
         props.userHasAuthenticated(true);
         console.log("created user successfully");
-        props.history.push(URL.LEAGUES.HOME);
+        props.history.push(URL.LEAGUES.INSIGHTS);
       } catch (e) {
         setHelperText({
           ...helperTexts,

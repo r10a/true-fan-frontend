@@ -19,7 +19,7 @@ interface IIndexProps {
 }
 
 function Index(props: IIndexProps) {
-  if (props.isAuthenticated) props.history.push(URL.LEAGUES.HOME);
+  if (props.isAuthenticated) props.history.push(URL.LEAGUES.INSIGHTS);
   const classes = useStyles();
 
   return (
