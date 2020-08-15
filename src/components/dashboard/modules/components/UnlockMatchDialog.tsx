@@ -91,7 +91,10 @@ export default function UnlockMatchDialog(props: IUnlockMatchDialog) {
     index: number,
     updatedPrediction: IPrediction
   ) => {
-    if (isEqual(userMatch.prediction, updatedPrediction)) {
+    if (
+      isEqual(userMatch.prediction, updatedPrediction) ||
+      isEmpty(updatedPrediction.team)
+    ) {
       setIsChanged(false);
     } else {
       setIsChanged(true);
