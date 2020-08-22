@@ -206,7 +206,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
             underline="none"
             color="inherit"
             component={RouterLink}
-            to={props.isAuthenticated ? URL.LEAGUES.INSIGHTS : URL.HOME}
+            to={props.isAuthenticated ? URL.LEAGUES.HOME : URL.HOME}
             className={classes.titleLogo}
           >
             {/* <div> */}
@@ -303,14 +303,14 @@ export default function AppAppBar(props: IAppAppBarProps) {
           <ListItem
             button
             onClick={() => {
-              history.push(URL.LEAGUES.INSIGHTS);
+              history.push(URL.LEAGUES.HOME);
               props.toggleSidebar();
             }}
           >
             <ListItemIcon>
               <AssistantIcon />
             </ListItemIcon>
-            <ListItemText primary="Insights" />
+            <ListItemText primary="Home" />
             <ListItemSecondaryAction>
               <ChevronRightIcon />
             </ListItemSecondaryAction>
@@ -318,7 +318,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
           <ListItem
             button
             onClick={() => {
-              history.push(URL.LEAGUES.HOME);
+              history.push(URL.LEAGUES.VIEW);
               props.toggleSidebar();
             }}
           >

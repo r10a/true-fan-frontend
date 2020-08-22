@@ -278,8 +278,8 @@ export default function Survivor(props: ISurvivorProps) {
           }
 
           if (isEmpty(match.end)) {
-            // remove this when schedule is set
-            match.end = addHours(new Date(match.start), 3).toISOString();
+            // FIXME: remove this when schedule is set
+            match.end = addHours(new Date(match.start), 4).toISOString();
           }
           return { match, prediction };
         }

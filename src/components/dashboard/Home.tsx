@@ -6,6 +6,7 @@ import { Container, Grid, Paper, Link } from "@material-ui/core";
 import DashboardAPI, { ITournamentScore } from "../../api/DashboardAPI";
 import Intro from "./modules/components/Intro";
 import TotalScoreBoard from "./modules/components/TotalScoreBoard";
+import SwipeableViews from "react-swipeable-views";
 
 interface IInsightProps {
   isAuthenticated: boolean;
@@ -20,8 +21,17 @@ const useStyles = makeStyles((theme) => ({
   mainGrid: {
     marginTop: theme.spacing(3),
   },
+  scoreInsights: {
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
   tournamentScores: {
     padding: theme.spacing(2),
+  },
+  slide: {
+    padding: 15,
+    minHeight: 100,
+    color: "#000",
   },
 }));
 
@@ -69,6 +79,13 @@ export default function Insights(props: IInsightProps) {
         imgText="my leagues"
         linkText=""
       />
+      <Paper elevation={3} className={classes.scoreInsights}>
+        <SwipeableViews enableMouseEvents>
+          <div className={classes.slide}>Match Stats #1</div>
+          <div className={classes.slide}>Match Stats #2</div>
+          <div className={classes.slide}>Match Stats #3</div>
+        </SwipeableViews>
+      </Paper>
       <Paper elevation={3} className={classes.tournamentScores}>
         <Grid container spacing={3} justify="center">
           <TotalScoreBoard score={scores} />

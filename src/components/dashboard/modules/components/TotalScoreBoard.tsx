@@ -94,8 +94,8 @@ function ScoreBoard(props: IScoreBoardProps) {
   const [confidenceScores, setConfidenceScores] = useState([] as IUserScore[]);
 
   useEffect(() => {
-    setSurvivorScores(take(sortBy(scores, ["tournamentSurvivorRank"]), 10));
-    setConfidenceScores(take(sortBy(scores, ["tournamentConfidenceRank"]), 10));
+    setSurvivorScores(take(sortBy(scores, ["tournamentSurvivorRank"]), 5));
+    setConfidenceScores(take(sortBy(scores, ["tournamentConfidenceRank"]), 5));
   }, [scores]);
 
   const handleChange = (event: object, newValue: number) => {
