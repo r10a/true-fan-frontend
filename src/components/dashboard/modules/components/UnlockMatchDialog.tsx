@@ -51,7 +51,7 @@ const statusProgressMap = {
   [MatchStatus.QUARTER]: "Since the match has already started,",
   [MatchStatus.HALF]: "Since the match is more than 25% done,",
   [MatchStatus.THREE_QUARTER]: "Since the match is more than 50% done,",
-  [MatchStatus.END_PHASE]: "Since the match is more than 75% done,",
+  [MatchStatus.END_PHASE]: "Since the match is more than 80% done,",
   [MatchStatus.COMPLETED]: "100",
 };
 /**

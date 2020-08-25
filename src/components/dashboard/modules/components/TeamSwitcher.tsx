@@ -108,7 +108,7 @@ const getMatchStatus = (
   const percentCompleted = Math.round((elapsedTime / matchDuration) * 100);
   if (percentCompleted < 25) return [percentCompleted, MatchStatus.QUARTER];
   if (percentCompleted < 50) return [percentCompleted, MatchStatus.HALF];
-  if (percentCompleted < 75)
+  if (percentCompleted < 80)
     return [percentCompleted, MatchStatus.THREE_QUARTER];
   if (percentCompleted < 100) return [percentCompleted, MatchStatus.END_PHASE];
   return [percentCompleted, MatchStatus.COMPLETED];

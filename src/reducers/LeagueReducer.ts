@@ -1,9 +1,6 @@
 import { cloneDeep } from "lodash-es";
-import LeagueAPI, {
-  IUserLeagues,
-  IUserLeagueMembers,
-  IGameScheduleResult,
-} from "../api/LeagueAPI";
+import LeagueAPI, { IUserLeagues, IUserLeagueMembers } from "../api/LeagueAPI";
+import DashboardAPI, { IGameScheduleResult } from "../api/DashboardAPI";
 
 export const LEAGUE_ACTIONS = {
   CREATE_LEAGUE: "CREATE_LEAGUE",
@@ -49,7 +46,7 @@ export default (state: ILeagueState = initialState, action: any) => {
     case LEAGUE_ACTIONS.GET_SCHEDULE: {
       return {
         ...state,
-        schedule: LeagueAPI.getSchedule(action.tournament),
+        schedule: DashboardAPI.getSchedule(action.tournament),
       };
     }
     case LEAGUE_ACTIONS.GET_SURVIVOR_PREDICTION: {

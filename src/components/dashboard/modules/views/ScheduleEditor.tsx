@@ -7,7 +7,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import SaveIcon from "@material-ui/icons/Save";
 import { cloneDeep, isEmpty, map, set } from "lodash-es";
 import { useDispatch, useSelector } from "react-redux";
-import LeagueAPI, { IMatch } from "../../../../api/LeagueAPI";
 import { reducers } from "../../../../reducers";
 import { LEAGUE_ACTIONS } from "../../../../reducers/LeagueReducer";
 import { URL } from "../../../../Routes";
@@ -15,6 +14,7 @@ import Intro from "../components/Intro";
 import MatchEditor from "../components/MatchEditor";
 import Title from "../components/Title";
 import SurvivorStatusBar from "../components/SurvivorStatusBar";
+import DashboardAPI, { IMatch } from "../../../../api/DashboardAPI";
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -109,7 +109,7 @@ export default function ScheduleEditor(props: IScheduleEditorProps) {
   };
 
   const _saveSchedule = () => {
-    LeagueAPI.updateSchedule(tournament, schedule)
+    DashboardAPI.updateSchedule(tournament, schedule)
       .then(() => {
         enqueueSnackbar("Changed Saved", {
           variant: "success",

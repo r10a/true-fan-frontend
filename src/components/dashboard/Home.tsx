@@ -2,11 +2,26 @@ import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { URL } from "../../Routes";
 import { Link as RouterLink } from "react-router-dom";
-import { Container, Grid, Paper, Link } from "@material-ui/core";
-import DashboardAPI, { ITournamentScore } from "../../api/DashboardAPI";
+import {
+  Container,
+  Grid,
+  Link,
+  Card,
+  CardHeader,
+  CardContent,
+  Divider,
+} from "@material-ui/core";
+import DashboardAPI, {
+  ITournamentScore,
+  ITournamentStats,
+} from "../../api/DashboardAPI";
 import Intro from "./modules/components/Intro";
 import TotalScoreBoard from "./modules/components/TotalScoreBoard";
 import SwipeableViews from "react-swipeable-views";
+import { map } from "lodash-es";
+import MatchStats from "./modules/components/MatchStats";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
 interface IInsightProps {
   isAuthenticated: boolean;
@@ -22,11 +37,10 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
   },
   scoreInsights: {
-    padding: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   tournamentScores: {
-    padding: theme.spacing(2),
+    // padding: theme.spacing(2),
   },
   slide: {
     padding: 15,
@@ -46,6 +60,9 @@ export default function Insights(props: IInsightProps) {
   const classes = useStyles();
 
   const [scores, setTournamentScores] = useState({} as ITournamentScore);
+  const [tournamentStats, setTournamentStats] = useState(
+    {} as ITournamentStats
+  );
 
   // constructor and destructor
   useEffect(() => {
@@ -54,7 +71,14 @@ export default function Insights(props: IInsightProps) {
         setTournamentScores(response.result.Item);
       });
     }
+    function getStats() {
+      DashboardAPI.getStats(CURRENT_TOURNAMENT).then((response) => {
+        setTournamentStats(response.result.Item);
+      });
+    }
+
     getScores();
+    getStats();
     return function cleanup() {
       // dispatch({ type: LEAGUE_ACTIONS.RESET });
     };
@@ -79,18 +103,40 @@ export default function Insights(props: IInsightProps) {
         imgText="my leagues"
         linkText=""
       />
-      <Paper elevation={3} className={classes.scoreInsights}>
-        <SwipeableViews enableMouseEvents>
-          <div className={classes.slide}>Match Stats #1</div>
-          <div className={classes.slide}>Match Stats #2</div>
-          <div className={classes.slide}>Match Stats #3</div>
-        </SwipeableViews>
-      </Paper>
-      <Paper elevation={3} className={classes.tournamentScores}>
-        <Grid container spacing={3} justify="center">
-          <TotalScoreBoard score={scores} />
-        </Grid>
-      </Paper>
+      <Card elevation={3} className={classes.scoreInsights}>
+        <CardHeader title="Match Statistics" />
+        <Divider />
+        <CardContent>
+          <Grid container direction="row" alignItems="center">
+            <Grid item xs={1}>
+              <ChevronLeftIcon />
+            </Grid>
+            <Grid item xs={10}>
+              <SwipeableViews enableMouseEvents>
+                {map(tournamentStats.stats, (stats, idx) => (
+                  <MatchStats
+                    stats={stats}
+                    idx={idx}
+                    key={`${stats.left}vs${stats.right}${idx}`}
+                  />
+                ))}
+              </SwipeableViews>
+            </Grid>
+            <Grid item xs={1}>
+              <ChevronRightIcon />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      <Card elevation={3} className={classes.tournamentScores}>
+        <CardHeader title="Tournament Standings" />
+        <Divider />
+        <CardContent>
+          <Grid container spacing={3} justify="center">
+            <TotalScoreBoard score={scores} />
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 }

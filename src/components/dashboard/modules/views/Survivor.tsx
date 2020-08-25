@@ -22,7 +22,6 @@ import {
 } from "lodash-es";
 import LeagueAPI, {
   IPrediction,
-  IMatch,
   ISurvivorPredictionPayload,
 } from "../../../../api/LeagueAPI";
 import { LEAGUE_ACTIONS } from "../../../../reducers/LeagueReducer";
@@ -39,7 +38,7 @@ import {
   addHours,
   isAfter,
 } from "date-fns";
-import { IUserScore } from "../../../../api/DashboardAPI";
+import { IUserScore, IMatch } from "../../../../api/DashboardAPI";
 import UnlockMatchDialog from "../components/UnlockMatchDialog";
 
 const useStyles = makeStyles((theme) => ({

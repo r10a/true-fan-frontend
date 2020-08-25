@@ -32,12 +32,6 @@ export interface IUserLeagueMembers extends IAPIQueryResult {
   Items: ILeagueMemberPayload[];
 }
 
-export interface IGameScheduleResult {
-  result: {
-    Item: IGameSchedule;
-  };
-}
-
 export interface IPlayerListResult {
   result: {
     Item: ITeamPlayers;
@@ -53,22 +47,6 @@ export interface IPrediction {
   team: string;
   mom: string;
   confidence: number;
-}
-
-export interface IGameSchedule {
-  tournament: string;
-  modified: string;
-  schedule: IMatch[];
-}
-
-export interface IMatch {
-  start: string;
-  mom: string;
-  right: string;
-  left: string;
-  completed: boolean;
-  winner: string;
-  end: string;
 }
 
 export interface ITeamPlayers {
@@ -141,23 +119,6 @@ const setLeagueMembers = async (
       },
     }
   );
-};
-
-const getSchedule = async (
-  tournament: string
-): Promise<IGameScheduleResult> => {
-  return API.get("tru-fan", `/get-schedule/${tournament}`, {
-    headers: {},
-  });
-};
-
-const updateSchedule = async (
-  tournament: string,
-  schedule: IMatch[]
-): Promise<IGameScheduleResult> => {
-  return API.post("tru-fan", `/update-schedule/${tournament}`, {
-    body: { schedule },
-  });
 };
 
 const getSurvivorPrediction = async (
@@ -235,8 +196,6 @@ export default {
   getUserLeagues,
   getLeagueMembers,
   setLeagueMembers,
-  getSchedule,
-  updateSchedule,
   getSurvivorPrediction,
   setSurvivorPrediction,
   getPlayers,

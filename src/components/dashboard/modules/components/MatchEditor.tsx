@@ -20,11 +20,11 @@ import { DateTimePicker } from "@material-ui/pickers";
 import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
 import React, { useEffect, useState } from "react";
 import Countdown, { CountdownRenderProps } from "react-countdown-now";
-import { IMatch } from "../../../../api/LeagueAPI";
 import theme from "../../../../theme";
 import PlayerAutocomplete from "./PlayerAutocomplete";
 import { IPlayerOption } from "./TeamSwitcher";
 import { isEmpty } from "lodash-es";
+import { IMatch } from "../../../../api/DashboardAPI";
 
 const useStyles = makeStyles({
   card: {
