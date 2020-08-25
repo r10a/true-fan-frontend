@@ -71,7 +71,7 @@ export default function HowToPlay(props: IDashboardProps) {
   return (
     <React.Fragment>
       <Container maxWidth="lg" className={classes.mainGrid}>
-        <Grid container spacing={2}>
+        <Grid container spacing={4}>
           <Grid item>
             <Card className={classes.root}>
               <CardHeader title="Survivor League" subheader="Rules" />
@@ -114,31 +114,22 @@ export default function HowToPlay(props: IDashboardProps) {
                   <Typography>
                     The ranking will be decided based on the following rules -
                     <List component="div" aria-label="rules">
-                      <ListItem>Least number of Strikes</ListItem>
+                      <ListItem>1. Least number of Strikes</ListItem>
+                      2. If number of strikes are equal then following Tie
+                      breaker rules will be applied
                       <ListItem>
-                        If number of strikes are equal then following Tie
-                        breaker rules will be applied
-                        <List component="div" aria-label="survivor-rules">
-                          <ListItem>
-                            Highest # of correct picks before the last Strike.
-                          </ListItem>
-                          <ListItem>
-                            Highest # of correct picks before the Last but 1
-                            Strike.
-                          </ListItem>
-                          <ListItem>
-                            --------------------------------------------
-                          </ListItem>
-                          <ListItem>
-                            --------------------------------------------
-                          </ListItem>
-                          <ListItem>
-                            Highest # of correct picks before the 2nd strike.
-                          </ListItem>
-                          <ListItem>
-                            Highest # of correct picks before the 1st strike.
-                          </ListItem>
-                        </List>
+                        Highest # of correct picks before the last Strike.
+                      </ListItem>
+                      <ListItem>
+                        Highest # of correct picks before the Last but 1 Strike.
+                      </ListItem>
+                      <ListItem>-------</ListItem>
+                      <ListItem>-------</ListItem>
+                      <ListItem>
+                        Highest # of correct picks before the 2nd strike.
+                      </ListItem>
+                      <ListItem>
+                        Highest # of correct picks before the 1st strike.
                       </ListItem>
                     </List>
                   </Typography>
@@ -219,8 +210,8 @@ export default function HowToPlay(props: IDashboardProps) {
                       </ListItem>
                       <ListItem>
                         For the remaining matches you will be able to assign 100
-                        and 20 points for 11 times and 40,60 and 80 points for
-                        12 times.
+                        and 20 points 11 times and 40, 60, and 80 points 12
+                        times.
                       </ListItem>
                     </List>
                   </Typography>
