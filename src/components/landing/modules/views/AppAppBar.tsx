@@ -27,7 +27,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import HelpIcon from "@material-ui/icons/Help";
 import EditIcon from "@material-ui/icons/Edit";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+// import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import SportsCricketIcon from "@material-ui/icons/SportsCricket";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
@@ -360,7 +360,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
               <ChevronRightIcon />
             </ListItemSecondaryAction>
           </ListItem>
-          <ListItem
+          {/* <ListItem
             button
             onClick={() => {
               history.push(URL.FAQ);
@@ -374,7 +374,7 @@ export default function AppAppBar(props: IAppAppBarProps) {
             <ListItemSecondaryAction>
               <ChevronRightIcon />
             </ListItemSecondaryAction>
-          </ListItem>
+          </ListItem> */}
           <ListItem
             button
             onClick={() => {

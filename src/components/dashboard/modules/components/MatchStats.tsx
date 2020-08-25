@@ -21,7 +21,7 @@ interface IMatchStatsProps {
 
 const useStyles = makeStyles((theme) => ({
   divider: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
   },
 }));
 
