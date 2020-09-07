@@ -11,8 +11,9 @@ import Insights from "./components/dashboard/Home";
 import CreateLeague from "./components/dashboard/CreateLeague";
 import ManageLeagues from "./components/dashboard/ManageLeagues";
 import IPL from "./components/dashboard/modules/views/IPL";
-import Survivor from "./components/dashboard/modules/views/Survivor";
+import Survivor from "./components/dashboard/modules/views/SurvivorConfidence";
 import ScheduleEditor from "./components/dashboard/modules/views/ScheduleEditor";
+import ContactUS from "./components/landing/ContactUS";
 
 const AppliedRoute = ({ component: C, appProps, ...rest }) => {
   return <Route {...rest} render={(props) => <C {...props} {...appProps} />} />;
@@ -28,6 +29,7 @@ export const URL = {
   SIGNIN: "/sign-in",
   FAQ: "/faq",
   HOW_TO_PLAY: "/how-to-play",
+  CONTACT_US: "/contact",
   LEAGUES: {
     HOME: "/home",
     VIEW: "/leagues",
@@ -109,6 +111,12 @@ export default (props) => {
         path={URL.LEAGUES.SCHEDULE_EDITOR}
         exact
         component={ScheduleEditor}
+        appProps={props}
+      />
+      <AppliedRoute
+        path={URL.CONTACT_US}
+        exact
+        component={ContactUS}
         appProps={props}
       />
       <Route component={NotFound} />

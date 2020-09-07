@@ -32,6 +32,7 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import SportsCricketIcon from "@material-ui/icons/SportsCricket";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import AssistantIcon from "@material-ui/icons/Assistant";
+import CommentIcon from "@material-ui/icons/Comment";
 import { Auth } from "aws-amplify";
 import { URL } from "../../../../Routes";
 import theme from "../../../../theme";
@@ -386,6 +387,21 @@ export default function AppAppBar(props: IAppAppBarProps) {
               <HelpIcon />
             </ListItemIcon>
             <ListItemText primary="How To Play" />
+            <ListItemSecondaryAction>
+              <ChevronRightIcon />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem
+            button
+            onClick={() => {
+              history.push(URL.CONTACT_US);
+              props.toggleSidebar();
+            }}
+          >
+            <ListItemIcon>
+              <CommentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Contact US" />
             <ListItemSecondaryAction>
               <ChevronRightIcon />
             </ListItemSecondaryAction>

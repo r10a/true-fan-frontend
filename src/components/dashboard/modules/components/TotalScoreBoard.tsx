@@ -3,18 +3,26 @@ import SwipeableViews from "react-swipeable-views";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   Box,
   AppBar,
   Tabs,
   Tab,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Collapse,
+  TablePagination,
 } from "@material-ui/core";
-import { map, sortBy, take, join } from "lodash-es";
+import { map, sortBy, take, join, slice } from "lodash-es";
 import { IUserScore, ITournamentScore } from "../../../../api/DashboardAPI";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,11 +83,150 @@ function a11yProps(index: number) {
   };
 }
 
+const useRowStyles = makeStyles((theme) => ({
+  root: {
+    "& > *": {
+      borderBottom: "unset",
+    },
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
+  },
+}));
+
 interface IScoreBoardProps {
   score: ITournamentScore;
+  survivorSelector: string;
+  confidenceSelector: string;
 }
 
-function ScoreBoard(props: IScoreBoardProps) {
+export function SurvivorScoreRow(props: {
+  row: { score: IUserScore; rank: number };
+}) {
+  const {
+    row: { score, rank },
+  } = props;
+  const [open, setOpen] = useState(false);
+  const classes = useRowStyles();
+
+  return (
+    <React.Fragment>
+      <TableRow className={classes.root}>
+        <TableCell align="right">
+          <Typography className={classes.secondaryHeading} variant="subtitle2">
+            #{rank + 1}
+          </Typography>
+        </TableCell>
+        <TableCell align="right">{score.username}</TableCell>
+        <TableCell align="right">
+          {score.tournamentLeague.split("/").splice(1).join()}
+        </TableCell>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box margin={1}>
+              <Table size="small" aria-label="summary">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Strikes</TableCell>
+                    <TableCell>Lost Matches</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {score.strikes}
+                    </TableCell>
+                    <TableCell>
+                      {join(
+                        map(score.lostMatches, (m) => `#${m}`),
+                        " "
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
+
+export function ConfidenceScoreRow(props: {
+  row: { score: IUserScore; rank: number };
+}) {
+  const {
+    row: { score, rank },
+  } = props;
+  const [open, setOpen] = useState(false);
+  const classes = useRowStyles();
+
+  return (
+    <React.Fragment>
+      <TableRow className={classes.root}>
+        <TableCell align="right">
+          <Typography className={classes.secondaryHeading} variant="subtitle2">
+            #{rank + 1}
+          </Typography>
+        </TableCell>
+        <TableCell align="right">{score.username}</TableCell>
+        <TableCell align="right">
+          {score.tournamentLeague.split("/").splice(1).join()}
+        </TableCell>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box margin={1}>
+              <Table size="small" aria-label="summary">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Confidence Score</TableCell>
+                    <TableCell>Remaining Points</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {score.confidenceScore}
+                    </TableCell>
+                    <TableCell>{score.remainingPoints}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
+
+const ROWS_PER_PAGE = 5;
+
+function TotalScoreBoard(props: IScoreBoardProps) {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = useState(0);
@@ -88,14 +235,18 @@ function ScoreBoard(props: IScoreBoardProps) {
   };
   const {
     score: { tournament, scores },
+    survivorSelector,
+    confidenceSelector,
   } = props;
 
   const [survivoreScores, setSurvivorScores] = useState([] as IUserScore[]);
   const [confidenceScores, setConfidenceScores] = useState([] as IUserScore[]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
-    setSurvivorScores(take(sortBy(scores, ["tournamentSurvivorRank"]), 5));
-    setConfidenceScores(take(sortBy(scores, ["tournamentConfidenceRank"]), 5));
+    setSurvivorScores(take(sortBy(scores, [survivorSelector]), 5));
+    setConfidenceScores(take(sortBy(scores, [confidenceSelector]), 5));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scores]);
 
   const handleChange = (event: object, newValue: number) => {
@@ -104,6 +255,13 @@ function ScoreBoard(props: IScoreBoardProps) {
 
   const handleChangeIndex = (index: number) => {
     setValue(index);
+  };
+
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
   };
 
   return (
@@ -142,49 +300,33 @@ function ScoreBoard(props: IScoreBoardProps) {
           classes={classes.expansionStyle}
         >
           <>
-            {map(survivoreScores, (score, rank) => (
-              <Accordion square key={score.username}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography
-                    className={classes.secondaryHeading}
-                    variant="subtitle2"
-                  >
-                    #{rank + 1}
-                  </Typography>
-                  <Typography className={classes.heading} variant="subtitle1">
-                    {`${score.username} - ${score.tournamentLeague
-                      .split("/")
-                      .splice(1)
-                      .join()}`}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container justify="center">
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">Summary</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Strikes: {score.strikes}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Lost Matches:{" "}
-                        {join(
-                          map(score.lostMatches, (m) => `#${m}`),
-                          " "
-                        )}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            <TableContainer component={Paper}>
+              <Table aria-label="collapsible table">
+                <TableBody>
+                  {map(
+                    slice(
+                      survivoreScores,
+                      page * ROWS_PER_PAGE,
+                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    ),
+                    (score, rank) => (
+                      <SurvivorScoreRow
+                        key={score.userId}
+                        row={{ score, rank }}
+                      />
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[]}
+              count={survivoreScores.length}
+              rowsPerPage={ROWS_PER_PAGE}
+              page={page}
+              onChangePage={handleChangePage}
+            />
           </>
         </TabPanel>
         <TabPanel
@@ -194,45 +336,33 @@ function ScoreBoard(props: IScoreBoardProps) {
           classes={classes.expansionStyle}
         >
           <>
-            {map(confidenceScores, (score, rank) => (
-              <Accordion square key={score.username}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography
-                    className={classes.secondaryHeading}
-                    variant="subtitle2"
-                  >
-                    #{rank + 1}
-                  </Typography>
-                  <Typography className={classes.heading} variant="subtitle1">
-                    {`${score.username} - ${score.tournamentLeague
-                      .split("/")
-                      .splice(1)
-                      .join()}`}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container justify="center">
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">Summary</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Confidence Score: {score.confidenceScore}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Remaining Points: {score.remainingPoints}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            <TableContainer component={Paper}>
+              <Table aria-label="collapsible table">
+                <TableBody>
+                  {map(
+                    slice(
+                      confidenceScores,
+                      page * ROWS_PER_PAGE,
+                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    ),
+                    (score, rank) => (
+                      <ConfidenceScoreRow
+                        key={score.userId}
+                        row={{ score, rank }}
+                      />
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[]}
+              count={survivoreScores.length}
+              rowsPerPage={ROWS_PER_PAGE}
+              page={page}
+              onChangePage={handleChangePage}
+            />
           </>
         </TabPanel>
       </SwipeableViews>
@@ -240,4 +370,4 @@ function ScoreBoard(props: IScoreBoardProps) {
   );
 }
 
-export default React.memo(ScoreBoard);
+export default React.memo(TotalScoreBoard);

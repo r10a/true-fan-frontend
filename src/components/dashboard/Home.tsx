@@ -63,6 +63,7 @@ export default function Insights(props: IInsightProps) {
   const [tournamentStats, setTournamentStats] = useState(
     {} as ITournamentStats
   );
+  const [matchIndex, setMatchIndex] = useState(0);
 
   // constructor and destructor
   useEffect(() => {
@@ -93,12 +94,12 @@ export default function Insights(props: IInsightProps) {
             variant="h6"
             underline="none"
             component={RouterLink}
-            to={URL.LEAGUES.IPL}
+            to={URL.LEAGUES.MANAGE}
           >
             Indian Premier League
           </Link>
         }
-        description=""
+        description="Click here to Manage your Leagues"
         image="https://source.unsplash.com/hY3sn--SgwM"
         imgText="my leagues"
         linkText=""
@@ -109,10 +110,12 @@ export default function Insights(props: IInsightProps) {
         <CardContent>
           <Grid container direction="row" alignItems="center">
             <Grid item xs={1}>
-              <ChevronLeftIcon />
+              <ChevronLeftIcon
+                onClick={() => matchIndex > 0 && setMatchIndex(matchIndex - 1)}
+              />
             </Grid>
             <Grid item xs={10}>
-              <SwipeableViews enableMouseEvents>
+              <SwipeableViews enableMouseEvents index={matchIndex}>
                 {map(tournamentStats.stats, (stats, idx) => (
                   <MatchStats
                     stats={stats}
@@ -123,7 +126,12 @@ export default function Insights(props: IInsightProps) {
               </SwipeableViews>
             </Grid>
             <Grid item xs={1}>
-              <ChevronRightIcon />
+              <ChevronRightIcon
+                onClick={() =>
+                  matchIndex < tournamentStats.stats.length - 1 &&
+                  setMatchIndex(matchIndex + 1)
+                }
+              />
             </Grid>
           </Grid>
         </CardContent>
@@ -133,7 +141,11 @@ export default function Insights(props: IInsightProps) {
         <Divider />
         <CardContent>
           <Grid container spacing={3} justify="center">
-            <TotalScoreBoard score={scores} />
+            <TotalScoreBoard
+              score={scores}
+              survivorSelector="tournamentSurvivorRank"
+              confidenceSelector="tournamentConfidenceRank"
+            />
           </Grid>
         </CardContent>
       </Card>

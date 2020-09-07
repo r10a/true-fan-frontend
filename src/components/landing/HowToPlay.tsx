@@ -17,6 +17,7 @@ import {
   Grid,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ReactPlayer from "react-player";
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -72,6 +73,18 @@ export default function HowToPlay(props: IDashboardProps) {
     <React.Fragment>
       <Container maxWidth="lg" className={classes.mainGrid}>
         <Grid container spacing={4}>
+          <Grid item>
+            {/* Videos */}
+            <Card className={classes.root}>
+              <CardHeader title="Create a League" />
+              <CardContent>
+                <ReactPlayer
+                  url="https://www.youtube.com/embed/BAOd0Rn19wI"
+                  width={325}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
           <Grid item>
             <Card className={classes.root}>
               <CardHeader title="Survivor League" subheader="Rules" />

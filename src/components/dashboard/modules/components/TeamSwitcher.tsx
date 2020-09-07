@@ -6,7 +6,6 @@ import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import LockOpenIcon from "@material-ui/icons/LockOpen";
 import Countdown, { CountdownRenderProps } from "react-countdown-now";
 import { IPrediction } from "../../../../api/LeagueAPI";
 import theme from "../../../../theme";
@@ -18,7 +17,7 @@ import {
   IConfidenceScore,
   getValidFreeHits,
   IPowerPlayPoints,
-} from "../views/Survivor";
+} from "../views/SurvivorConfidence";
 import { find, isEmpty, includes } from "lodash-es";
 import {
   subHours,
@@ -379,7 +378,10 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
               aria-label="unlock"
               onClick={() => edit(index, matchStatus)}
             >
-              <LockOpenIcon />
+              <Typography component="div">
+                <div>Use</div>
+                <div>PP/FH</div>
+              </Typography>
             </IconButton>
           )
         }

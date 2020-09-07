@@ -32,11 +32,12 @@ interface IDashboardProps {
   history: any;
 }
 
-export default function CreateLeague(props: IDashboardProps) {
-  if (!props.isAuthenticated) props.history.push(URL.HOME);
-  const classes = useStyles();
+export function CreateLeagueDialogContainer(props: {
+  isCreateOpen: boolean;
+  openCreate: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const dispatch = useDispatch();
-  const [isCreateOpen, openCreate] = useState(false);
+  const { isCreateOpen, openCreate } = props;
 
   const [formFields, setFormField] = useState({
     leagueName: "",
@@ -47,17 +48,6 @@ export default function CreateLeague(props: IDashboardProps) {
     leagueName: "",
     description: "",
   });
-
-  // constructor and destructor
-  useEffect(() => {
-    const getUserLeagues = async () => {
-      dispatch({ type: LEAGUE_ACTIONS.GET_USER_LEAGUES });
-    };
-    getUserLeagues();
-    return function cleanup() {
-      dispatch({ type: LEAGUE_ACTIONS.RESET });
-    };
-  }, [dispatch]);
 
   const fields = [
     { id: "leagueName", label: "League Name" },
@@ -123,6 +113,37 @@ export default function CreateLeague(props: IDashboardProps) {
   };
 
   return (
+    <CreateLeagueDialog<{ leagueName: string; description: string }>
+      open={isCreateOpen}
+      fields={fields}
+      formFields={formFields}
+      setFormField={setFormField}
+      helperTexts={helperTexts}
+      handleClose={() => openCreate(false)}
+      handleSubmit={createLeague}
+      type={"IPL-2020"}
+    />
+  );
+}
+
+export default function CreateLeague(props: IDashboardProps) {
+  if (!props.isAuthenticated) props.history.push(URL.HOME);
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const [isCreateOpen, openCreate] = useState(false);
+
+  // constructor and destructor
+  useEffect(() => {
+    const getUserLeagues = async () => {
+      dispatch({ type: LEAGUE_ACTIONS.GET_USER_LEAGUES });
+    };
+    getUserLeagues();
+    return function cleanup() {
+      dispatch({ type: LEAGUE_ACTIONS.RESET });
+    };
+  }, [dispatch]);
+
+  return (
     <React.Fragment>
       <Container maxWidth="lg" className={classes.mainGrid}>
         <main>
@@ -156,15 +177,9 @@ export default function CreateLeague(props: IDashboardProps) {
               onClick={() => console.log("Join public")}
             /> */}
           </Grid>
-          <CreateLeagueDialog<{ leagueName: string; description: string }>
-            open={isCreateOpen}
-            fields={fields}
-            formFields={formFields}
-            setFormField={setFormField}
-            helperTexts={helperTexts}
-            handleClose={() => openCreate(false)}
-            handleSubmit={createLeague}
-            type={"IPL-2020"}
+          <CreateLeagueDialogContainer
+            isCreateOpen={isCreateOpen}
+            openCreate={openCreate}
           />
         </main>
       </Container>

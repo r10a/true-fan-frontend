@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import SaveIcon from "@material-ui/icons/Save";
 import { map } from "lodash-es";
-import { IConfidenceScore } from "../views/Survivor";
+import { IConfidenceScore } from "../views/SurvivorConfidence";
 
 export interface ISurvivorStatusProps {
   confidenceScores: IConfidenceScore[];

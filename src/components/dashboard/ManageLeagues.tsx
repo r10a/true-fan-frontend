@@ -12,6 +12,8 @@ import { Paper } from "@material-ui/core";
 import Title from "./modules/components/Title";
 import ManageLeagueDialog from "./modules/components/ManageLeagueDialog";
 import { ILeague } from "../../api/LeagueAPI";
+import { CreateLeagueDialogContainer } from "./CreateLeague";
+import JumboButton from "./modules/components/JumboButton";
 
 const useStyles = makeStyles((theme) => ({
   mainGrid: {
@@ -42,6 +44,7 @@ export default function ManageLeagues(props: IDashboardProps) {
   const [userLeagues, setUserLeagues] = useState([] as ILeague[]);
   const [selectedLeague, setSelectedLeague] = useState({} as ILeague);
   const [isManageOpen, openManage] = useState(false);
+  const [isCreateOpen, openCreate] = useState(false);
 
   const tournament = "IPL-2020"; // TODO: Refactor later
 
@@ -91,6 +94,19 @@ export default function ManageLeagues(props: IDashboardProps) {
       <Container maxWidth="lg" className={classes.mainGrid}>
         <main>
           <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <JumboButton
+                title="Create IPL-2020 League"
+                description=""
+                image="https://source.unsplash.com/ghxL3qOfkPo"
+                imgText="main image description"
+                onClick={() => openCreate(true)}
+              />
+              <CreateLeagueDialogContainer
+                isCreateOpen={isCreateOpen}
+                openCreate={openCreate}
+              />
+            </Grid>
             {!isEmpty(adminLeagues) && (
               <Grid item xs={12}>
                 <Paper elevation={3} className={classes.leaguesSection}>

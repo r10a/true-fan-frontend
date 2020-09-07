@@ -3,21 +3,23 @@ import SwipeableViews from "react-swipeable-views";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   Box,
   AppBar,
   Tabs,
   Tab,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Link,
+  TableContainer,
+  Paper,
+  Table,
+  TableBody,
+  TablePagination,
 } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
-import { map, sortBy, take, join, get, split } from "lodash-es";
+import { map, sortBy, take, get, split, slice } from "lodash-es";
 import { ILeagueScore, IUserScore } from "../../../../api/DashboardAPI";
 import { URL } from "../../../../Routes";
+import { SurvivorScoreRow, ConfidenceScoreRow } from "./TotalScoreBoard";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,6 +84,8 @@ interface IScoreBoardProps {
   score: ILeagueScore;
 }
 
+const ROWS_PER_PAGE = 5;
+
 function ScoreBoard(props: IScoreBoardProps) {
   const classes = useStyles();
   const theme = useTheme();
@@ -100,6 +104,7 @@ function ScoreBoard(props: IScoreBoardProps) {
 
   const [survivoreScores, setSurvivorScores] = useState([] as IUserScore[]);
   const [confidenceScores, setConfidenceScores] = useState([] as IUserScore[]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     setSurvivorScores(take(sortBy(scores, ["survivorRank"]), 10));
@@ -114,6 +119,13 @@ function ScoreBoard(props: IScoreBoardProps) {
     setValue(index);
   };
 
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
   return (
     <Grid item className={classes.root} xs={12} md={6}>
       <AppBar
@@ -126,7 +138,7 @@ function ScoreBoard(props: IScoreBoardProps) {
         <Link
           color="inherit"
           variant="h5"
-          underline="none"
+          underline="always"
           component={RouterLink}
           to={URL.LEAGUES.SURVIVOR.replace(":game", tournament).replace(
             ":league",
@@ -161,46 +173,33 @@ function ScoreBoard(props: IScoreBoardProps) {
           classes={classes.expansionStyle}
         >
           <>
-            {map(survivoreScores, (score, rank) => (
-              <Accordion square key={score.username}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography
-                    className={classes.secondaryHeading}
-                    variant="subtitle2"
-                  >
-                    #{rank + 1}
-                  </Typography>
-                  <Typography className={classes.heading} variant="subtitle1">
-                    {score.username}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container justify="center">
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">Summary</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Strikes: {score.strikes}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Lost Matches:{" "}
-                        {join(
-                          map(score.lostMatches, (m) => `#${m}`),
-                          " "
-                        )}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            <TableContainer component={Paper}>
+              <Table aria-label="collapsible table">
+                <TableBody>
+                  {map(
+                    slice(
+                      survivoreScores,
+                      page * ROWS_PER_PAGE,
+                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    ),
+                    (score, rank) => (
+                      <SurvivorScoreRow
+                        key={score.userId}
+                        row={{ score, rank }}
+                      />
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[]}
+              count={survivoreScores.length}
+              rowsPerPage={ROWS_PER_PAGE}
+              page={page}
+              onChangePage={handleChangePage}
+            />
           </>
         </TabPanel>
         <TabPanel
@@ -210,42 +209,33 @@ function ScoreBoard(props: IScoreBoardProps) {
           classes={classes.expansionStyle}
         >
           <>
-            {map(confidenceScores, (score, rank) => (
-              <Accordion square key={score.username}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography
-                    className={classes.secondaryHeading}
-                    variant="subtitle2"
-                  >
-                    #{rank + 1}
-                  </Typography>
-                  <Typography className={classes.heading} variant="subtitle1">
-                    {score.username}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container justify="center">
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">Summary</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Confidence Score: {score.confidenceScore}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Remaining Points: {score.remainingPoints}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            <TableContainer component={Paper}>
+              <Table aria-label="collapsible table">
+                <TableBody>
+                  {map(
+                    slice(
+                      confidenceScores,
+                      page * ROWS_PER_PAGE,
+                      page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    ),
+                    (score, rank) => (
+                      <ConfidenceScoreRow
+                        key={score.userId}
+                        row={{ score, rank }}
+                      />
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              rowsPerPageOptions={[]}
+              count={survivoreScores.length}
+              rowsPerPage={ROWS_PER_PAGE}
+              page={page}
+              onChangePage={handleChangePage}
+            />
           </>
         </TabPanel>
       </SwipeableViews>

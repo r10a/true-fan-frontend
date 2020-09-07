@@ -12,7 +12,7 @@ import {
   IEditPredictionPayload,
   IPowerPlayPoints,
   getValidFreeHits,
-} from "../views/Survivor";
+} from "../views/SurvivorConfidence";
 import TeamSwitcher, { MatchStatus, statusCostMap } from "./TeamSwitcher";
 import { IPrediction } from "../../../../api/LeagueAPI";
 import { isEmpty, includes, isEqual } from "lodash-es";
