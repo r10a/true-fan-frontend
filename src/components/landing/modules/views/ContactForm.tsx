@@ -15,10 +15,11 @@ import {
 } from "@material-ui/core";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import TwitterIcon from "@material-ui/icons/Twitter";
+import { Auth } from "aws-amplify";
 
 export default class ContactForm extends React.Component<
   object,
-  { status: string }
+  { status: string; email: string }
 > {
   classes: any;
 
@@ -27,7 +28,13 @@ export default class ContactForm extends React.Component<
     this.submitForm = this.submitForm.bind(this);
     this.state = {
       status: "",
+      email: "",
     };
+    Auth.currentAuthenticatedUser().then((user) => {
+      this.setState({
+        email: user.attributes.email,
+      });
+    });
   }
 
   render() {
@@ -43,7 +50,9 @@ export default class ContactForm extends React.Component<
             size="large"
             // className={classes.footerButton}
             startIcon={<FacebookIcon fontSize="large" htmlColor="#3b5998" />}
-          />
+          >
+            Facebook
+          </Link>
           <Link
             component={Button}
             href="https://twitter.com/truFan19"
@@ -54,7 +63,9 @@ export default class ContactForm extends React.Component<
             startIcon={
               <TwitterIcon fontSize="large" htmlColor="rgb(29, 161, 242)" />
             }
-          />
+          >
+            Twitter
+          </Link>
         </CardActionArea>
         <CardContent>
           <form
@@ -66,10 +77,11 @@ export default class ContactForm extends React.Component<
             {/* <!-- add your custom form HTML here --> */}
             <FormGroup style={{ padding: 10 }}>
               <TextField
-                type="email"
+                type="hidden"
                 name="email"
                 aria-label="email"
                 placeholder="Your email address."
+                value={this.state.email}
               />
             </FormGroup>
             <FormGroup style={{ padding: 10 }}>
@@ -86,7 +98,7 @@ export default class ContactForm extends React.Component<
               {status === "SUCCESS" ? (
                 <p>Thanks!</p>
               ) : (
-                <Button variant="contained" color="primary">
+                <Button type="submit" variant="contained" color="primary">
                   Send
                 </Button>
               )}
