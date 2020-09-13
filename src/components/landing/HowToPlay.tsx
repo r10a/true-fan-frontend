@@ -87,7 +87,7 @@ export default function HowToPlay(props: IDashboardProps) {
           </Grid>
           <Grid item>
             <Card className={classes.root}>
-              <CardHeader title="How to make a predict" />
+              <CardHeader title="How to make a Prediction" />
               <CardContent>
                 <ReactPlayer
                   url="https://youtu.be/T20hDC40KJ8"
