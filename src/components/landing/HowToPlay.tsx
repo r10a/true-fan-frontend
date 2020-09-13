@@ -73,13 +73,57 @@ export default function HowToPlay(props: IDashboardProps) {
     <React.Fragment>
       <Container maxWidth="lg" className={classes.mainGrid}>
         <Grid container spacing={4}>
+          {/* Videos */}
           <Grid item>
-            {/* Videos */}
             <Card className={classes.root}>
-              <CardHeader title="Create a League" />
+              <CardHeader title="How to invite people to your League" />
               <CardContent>
                 <ReactPlayer
-                  url="https://www.youtube.com/embed/BAOd0Rn19wI"
+                  url="https://youtu.be/3sMRvDtSSi0"
+                  width={325}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item>
+            <Card className={classes.root}>
+              <CardHeader title="How to make a Prediction" />
+              <CardContent>
+                <ReactPlayer
+                  url="https://youtu.be/T20hDC40KJ8"
+                  width={325}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item>
+            <Card className={classes.root}>
+              <CardHeader title="How to use PowerPlay" />
+              <CardContent>
+                <ReactPlayer
+                  url="https://youtu.be/_1aPx1BoxQA"
+                  width={325}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item>
+            <Card className={classes.root}>
+              <CardHeader title="How to use Free Hit" />
+              <CardContent>
+                <ReactPlayer
+                  url="https://youtu.be/cGVXJM6luSc"
+                  width={325}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item>
+            <Card className={classes.root}>
+              <CardHeader title="How to create a League" />
+              <CardContent>
+                <ReactPlayer
+                  url="https://youtu.be/oWhLLJ7mkAo"
                   width={325}
                 />
               </CardContent>
