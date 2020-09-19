@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   tournamentScores: {
-    // padding: theme.spacing(2),
+    padding: 0,
   },
   slide: {
     padding: 15,
@@ -136,10 +136,9 @@ export default function Insights(props: IInsightProps) {
           </Grid>
         </CardContent>
       </Card>
-      <Card elevation={3} className={classes.tournamentScores}>
+      <Card elevation={3}>
         <CardHeader title="Tournament Standings" />
-        <Divider />
-        <CardContent>
+        <CardContent className={classes.tournamentScores}>
           <Grid container spacing={3} justify="center">
             <TotalScoreBoard
               score={scores}

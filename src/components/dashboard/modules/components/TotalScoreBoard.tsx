@@ -118,11 +118,13 @@ export function SurvivorScoreRow(props: {
             #{rank + 1}
           </Typography>
         </TableCell>
-        <TableCell align="right">{score.username}</TableCell>
-        <TableCell align="right">
+        <TableCell align="left" style={{ padding: 0 }}>
+          {score.username}
+        </TableCell>
+        <TableCell align="right" style={{ padding: 0 }}>
           {score.tournamentLeague.split("/").splice(1).join()}
         </TableCell>
-        <TableCell>
+        <TableCell style={{ padding: 0 }}>
           <IconButton
             aria-label="expand row"
             size="small"
@@ -244,16 +246,18 @@ function TotalScoreBoard(props: IScoreBoardProps) {
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    setSurvivorScores(take(sortBy(scores, [survivorSelector]), 5));
-    setConfidenceScores(take(sortBy(scores, [confidenceSelector]), 5));
+    setSurvivorScores(take(sortBy(scores, [survivorSelector]), 20));
+    setConfidenceScores(take(sortBy(scores, [confidenceSelector]), 20));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scores]);
 
   const handleChange = (event: object, newValue: number) => {
+    setPage(0);
     setValue(newValue);
   };
 
   const handleChangeIndex = (index: number) => {
+    setPage(0);
     setValue(index);
   };
 
@@ -311,8 +315,8 @@ function TotalScoreBoard(props: IScoreBoardProps) {
                     ),
                     (score, rank) => (
                       <SurvivorScoreRow
-                        key={score.userId}
-                        row={{ score, rank }}
+                        key={`${score.userId}${score.tournamentLeague}`}
+                        row={{ score, rank: page * ROWS_PER_PAGE + rank }}
                       />
                     )
                   )}
@@ -347,8 +351,8 @@ function TotalScoreBoard(props: IScoreBoardProps) {
                     ),
                     (score, rank) => (
                       <ConfidenceScoreRow
-                        key={score.userId}
-                        row={{ score, rank }}
+                        key={`${score.userId}${score.tournamentLeague}`}
+                        row={{ score, rank: page * ROWS_PER_PAGE + rank }}
                       />
                     )
                   )}

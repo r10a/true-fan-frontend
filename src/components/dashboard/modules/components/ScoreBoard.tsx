@@ -107,8 +107,8 @@ function ScoreBoard(props: IScoreBoardProps) {
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    setSurvivorScores(take(sortBy(scores, ["survivorRank"]), 10));
-    setConfidenceScores(take(sortBy(scores, ["confidenceRank"]), 10));
+    setSurvivorScores(take(sortBy(scores, ["survivorRank"]), 20));
+    setConfidenceScores(take(sortBy(scores, ["confidenceRank"]), 20));
   }, [scores]);
 
   const handleChange = (event: object, newValue: number) => {
@@ -184,8 +184,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                     ),
                     (score, rank) => (
                       <SurvivorScoreRow
-                        key={score.userId}
-                        row={{ score, rank }}
+                        key={`${score.userId}${score.tournamentLeague}`}
+                        row={{ score, rank: page * ROWS_PER_PAGE + rank }}
                       />
                     )
                   )}
@@ -209,7 +209,7 @@ function ScoreBoard(props: IScoreBoardProps) {
           classes={classes.expansionStyle}
         >
           <>
-            <TableContainer component={Paper}>
+            <TableContainer component="div">
               <Table aria-label="collapsible table">
                 <TableBody>
                   {map(
@@ -220,8 +220,8 @@ function ScoreBoard(props: IScoreBoardProps) {
                     ),
                     (score, rank) => (
                       <ConfidenceScoreRow
-                        key={score.userId}
-                        row={{ score, rank }}
+                        key={`${score.userId}${score.tournamentLeague}`}
+                        row={{ score, rank: page * ROWS_PER_PAGE + rank }}
                       />
                     )
                   )}

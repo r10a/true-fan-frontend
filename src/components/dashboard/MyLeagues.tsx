@@ -4,7 +4,7 @@ import { URL } from "../../Routes";
 import ScoreBoard from "./modules/components/ScoreBoard";
 import { map } from "lodash-es";
 import { Link as RouterLink } from "react-router-dom";
-import { Container, Grid, Paper, Link } from "@material-ui/core";
+import { Container, Grid, Link } from "@material-ui/core";
 import DashboardAPI, { ITournament } from "../../api/DashboardAPI";
 import Intro from "./modules/components/Intro";
 
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
   },
   tournamentScores: {
-    padding: theme.spacing(2),
+    padding: 0,
   },
 }));
 
@@ -76,17 +76,11 @@ export default function Dashboard(props: IDashboardProps) {
         linkText=""
       />
       {map(scores, (tScore) => (
-        <Paper
-          key={tScore.tournament}
-          elevation={3}
-          className={classes.tournamentScores}
-        >
-          <Grid container spacing={3} justify="center">
-            {map(tScore.leagues, (leagueScore) => (
-              <ScoreBoard key={leagueScore.leagueName} score={leagueScore} />
-            ))}
-          </Grid>
-        </Paper>
+        <Grid container spacing={3} justify="center">
+          {map(tScore.leagues, (leagueScore) => (
+            <ScoreBoard key={leagueScore.leagueName} score={leagueScore} />
+          ))}
+        </Grid>
       ))}
     </Container>
   );
