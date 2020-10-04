@@ -17,6 +17,7 @@ import {
   IConfidenceScore,
   getValidFreeHits,
   IPowerPlayPoints,
+  getFreeHitExpiry,
 } from "../views/SurvivorConfidence";
 import { find, isEmpty, includes } from "lodash-es";
 import {
@@ -26,6 +27,7 @@ import {
   differenceInMinutes,
   isAfter,
   isWithinInterval,
+  addMinutes,
 } from "date-fns";
 
 const MAX_32_BIT_INTEGER = 0x7fffffff;
@@ -111,6 +113,27 @@ const getMatchStatus = (
     return [percentCompleted, MatchStatus.THREE_QUARTER];
   if (percentCompleted < 100) return [percentCompleted, MatchStatus.END_PHASE];
   return [percentCompleted, MatchStatus.COMPLETED];
+};
+
+const getPPEnd = (
+  start: string,
+  end: string,
+  matchStatus: MatchStatus
+): Date => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const matchDuration = differenceInMinutes(endDate, startDate);
+  switch (matchStatus) {
+    case MatchStatus.NOT_STARTED:
+    case MatchStatus.QUARTER:
+      return addMinutes(startDate, matchDuration * 0.25);
+    case MatchStatus.HALF:
+      return addMinutes(startDate, matchDuration * 0.5);
+    case MatchStatus.THREE_QUARTER:
+      return addMinutes(startDate, matchDuration * 0.8);
+    default:
+      return new Date();
+  }
 };
 
 function TeamSwitcher(props: ITeamSwitcherProps) {
@@ -276,11 +299,23 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
               <div>{`Match start in ${minutes} minute(s)`}</div>
               <div>{`Prediction locked`}</div>
               <div>
-                {canEdit
-                  ? useFreeHit
-                    ? "FreeHit Available"
-                    : "P1 Available"
-                  : ""}
+                {canEdit ? (
+                  useFreeHit ? (
+                    <span>
+                      <span>Free hit expires in </span>
+                      <Countdown
+                        date={getFreeHitExpiry(freeHits, usedFreeHits)}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <span>P1 available for </span>
+                      <Countdown date={getPPEnd(start, end, matchStatus)} />
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           );
@@ -290,11 +325,23 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
               <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
               <div>{`Prediction locked`}</div>
               <div>
-                {canEdit
-                  ? useFreeHit
-                    ? "FreeHit Available"
-                    : "P1 Available"
-                  : ""}
+                {canEdit ? (
+                  useFreeHit ? (
+                    <span>
+                      <span>Free hit expires in </span>
+                      <Countdown
+                        date={getFreeHitExpiry(freeHits, usedFreeHits)}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <span>P1 available for </span>
+                      <Countdown date={getPPEnd(start, end, matchStatus)} />
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           );
@@ -304,11 +351,23 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
               <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
               <div>{`Prediction locked`}</div>
               <div>
-                {canEdit
-                  ? useFreeHit
-                    ? "FreeHit Available"
-                    : "P2 Available"
-                  : ""}
+                {canEdit ? (
+                  useFreeHit ? (
+                    <span>
+                      <span>Free hit expires in </span>
+                      <Countdown
+                        date={getFreeHitExpiry(freeHits, usedFreeHits)}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <span>P2 available for </span>
+                      <Countdown date={getPPEnd(start, end, matchStatus)} />
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           );
@@ -318,11 +377,23 @@ function TeamSwitcher(props: ITeamSwitcherProps) {
               <div>{`Match started @ ${startDate.toLocaleTimeString()} | Progress ${percentCompleted}%`}</div>
               <div>{`Prediction locked`}</div>
               <div>
-                {canEdit
-                  ? useFreeHit
-                    ? "FreeHit Available"
-                    : "P3 Available"
-                  : ""}
+                {canEdit ? (
+                  useFreeHit ? (
+                    <span>
+                      <span>Free hit expires in </span>
+                      <Countdown
+                        date={getFreeHitExpiry(freeHits, usedFreeHits)}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <span>P3 available for </span>
+                      <Countdown date={getPPEnd(start, end, matchStatus)} />
+                    </span>
+                  )
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           );

@@ -76,7 +76,7 @@ export default function Dashboard(props: IDashboardProps) {
         linkText=""
       />
       {map(scores, (tScore) => (
-        <Grid container spacing={3} justify="center">
+        <Grid key={tScore.tournament} container spacing={3} justify="center">
           {map(tScore.leagues, (leagueScore) => (
             <ScoreBoard key={leagueScore.leagueName} score={leagueScore} />
           ))}
