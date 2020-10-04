@@ -19,10 +19,15 @@ export interface ITournamentStatsResult {
 }
 
 export interface TournamentMatchStat extends IMatch {
+  left: string;
   leftCount: number;
   leftConfidence: number;
+  right: string;
   rightCount: number;
   rightConfidence: number;
+  start: string;
+  end: string;
+  completed: boolean;
 }
 
 export interface ITournamentStats {

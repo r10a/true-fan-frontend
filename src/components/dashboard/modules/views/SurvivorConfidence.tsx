@@ -128,6 +128,14 @@ export const getValidFreeHits = (
   return validFreeHits;
 };
 
+export const getFreeHitExpiry = (
+  freeHits: IPowerPlayPoints["freeHits"],
+  usedFreeHits: IPowerPlayPoints["usedFreeHits"]
+): Date => {
+  const validFreeHits = getValidFreeHits(freeHits, usedFreeHits);
+  return new Date(validFreeHits[0].expiry);
+};
+
 export default function Survivor(props: ISurvivorProps) {
   if (!props.isAuthenticated) props.history.push(URL.HOME);
 

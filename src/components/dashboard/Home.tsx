@@ -18,7 +18,7 @@ import DashboardAPI, {
 import Intro from "./modules/components/Intro";
 import TotalScoreBoard from "./modules/components/TotalScoreBoard";
 import SwipeableViews from "react-swipeable-views";
-import { map } from "lodash-es";
+import { findIndex, map } from "lodash-es";
 import MatchStats from "./modules/components/MatchStats";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
@@ -74,7 +74,13 @@ export default function Insights(props: IInsightProps) {
     }
     function getStats() {
       DashboardAPI.getStats(CURRENT_TOURNAMENT).then((response) => {
-        setTournamentStats(response.result.Item);
+        const tournamentStats = response.result.Item;
+        const matchIdx = findIndex(
+          tournamentStats.stats,
+          (stat) => stat.completed === false
+        );
+        setMatchIndex(matchIdx);
+        setTournamentStats(tournamentStats);
       });
     }
 
