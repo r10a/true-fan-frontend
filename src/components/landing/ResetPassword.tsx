@@ -17,6 +17,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions";
+import { isEmpty } from "lodash-es";
 
 function Copyright() {
   return (
@@ -65,6 +66,7 @@ export default function ResetPassword(props: ISignInProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmationCode, setConfirmationCode] = useState("");
+  const [helperText, setHelperText] = useState("");
 
   const [confirmation, showConfirmation] = useState(false);
 
@@ -76,7 +78,9 @@ export default function ResetPassword(props: ISignInProps) {
       try {
         await Auth.forgotPassword(email);
         showConfirmation(true);
+        setHelperText("");
       } catch (e) {
+        setHelperText(e.message);
         console.log(e);
       }
     } else {
@@ -95,6 +99,7 @@ export default function ResetPassword(props: ISignInProps) {
         console.log("password reset");
         props.history.push(URL.LEAGUES.HOME);
       } catch (e) {
+        setHelperText(e.message);
         console.log(e);
       }
     } else {
@@ -142,6 +147,8 @@ export default function ResetPassword(props: ISignInProps) {
                 label="New Password"
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
+                error={!isEmpty(helperText)}
+                helperText={helperText}
                 fullWidth
               />
             </DialogContent>
@@ -187,6 +194,8 @@ export default function ResetPassword(props: ISignInProps) {
             name="email"
             autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
+            error={!isEmpty(helperText)}
+            helperText={helperText}
             autoFocus
           />
           <Button
